@@ -5,7 +5,7 @@ import authRouter from "./routes/authRoutes.js";
 import errorHandler from "./middlewares/errorHandler.js";
 
 // Start Up
-// NOTE: dotenv only work when the server.js file is launch from the root folder (e.g: "node src/server.js")
+// TO-NOTE: dotenv only work when the server.js file is launch from the root folder (e.g: "node src/server.js")
 dotenv.config();
 const app = express();
 
@@ -26,13 +26,18 @@ app.get("/api", (req, res) => {
 
 app.use("/api/auth", authRouter);
 
+// TO-CONSIDER: Add "models" folder, if necessary
+// TO-CONSIDER: Add "controllers" folder, if necessary
+// TO-CONSIDER: Add "services" folder, if necessary
+// Source: https://www.coreycleary.me/project-structure-for-an-express-rest-api-when-there-is-no-standard-way
+
 // TO-DO: Implement default response for non existing route, no matter the method
 // app.get('*')
 // app.post('*')
 // app.put('*')
 // app.delete('*')
 
-// NOTE: The errorhandler need to be right before the end
+// TO-NOTE: The errorhandler need to be right before the end
 // If not, it'll not work or return to express default error handling system
 app.use(errorHandler);
 
