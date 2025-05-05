@@ -11,8 +11,8 @@ authRouter.post("/login", (req, res, next) => {
     }
 
     const jsonKeys = Object.keys(jsonBody).length;
-    if (jsonKeys === 0) {
-      throw new Error(`Cannot process empty request body !`);
+    if (jsonKeys != 3) {
+      throw new Error(`Cannot process request body of the wrong size !`);
     }
 
     const jsonUsername = jsonBody.username;
@@ -44,8 +44,8 @@ authRouter.post("/register", (req, res, next) => {
     }
 
     const jsonKeys = Object.keys(jsonBody).length;
-    if (jsonKeys === 0) {
-      throw new Error(`Cannot process empty request body !`);
+    if (jsonKeys != 2) {
+      throw new Error(`Cannot process request body of the wrong size !`);
     }
 
     const jsonEmail = jsonBody.email;
