@@ -12,6 +12,8 @@ const isLongerEqualThan = (value, higherLength) => value > higherLength;
 const isLowerEqualThan = (value, lowerNumber) => value < lowerNumber;
 const isHigherEqualThan = (value, higherNumber) => value < higherNumber;
 const isNotEqual = (value, equalNumber) => value != equalNumber;
+const isEmail = (value) =>
+  /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value);
 
 // TO-CONSIDER: Add prettier for better formatting ?
 
@@ -26,7 +28,7 @@ const validateStringProperty = (value, valueName, minLength, maxLength) => {
   }
 
   if (isNotString(value)) {
-    return new Error(`Cannot process non string ${valueName} property !`);
+    return new Error(`Cannot process non-string ${valueName} property !`);
   }
 
   if (isShorterEqualThan(value.length, minLength)) {
@@ -44,6 +46,7 @@ const validateStringProperty = (value, valueName, minLength, maxLength) => {
   return true;
 };
 
+// TO-CONSIDER: Implement small fixed windows limiter (prevent spam) ?
 authRouter.post("/login", (req, res, next) => {
   try {
     // SECURITY: Verify JSON body
@@ -82,6 +85,10 @@ authRouter.post("/login", (req, res, next) => {
       MAX_EMAIL_LENGTH
     );
 
+    if (!isEmail(req.body.email)) {
+      throw new Error(`Cannot process non-standard email property !`);
+    }
+
     if (emailError instanceof Error) {
       throw emailError;
     }
@@ -118,6 +125,7 @@ authRouter.post("/login", (req, res, next) => {
   }
 });
 
+// TO-CONSIDER: Implement small fixed windows limiter (prevent spam) ?
 authRouter.post("/register", (req, res, next) => {
   try {
     // SECURITY: Verify JSON body
@@ -140,6 +148,10 @@ authRouter.post("/register", (req, res, next) => {
       MIN_EMAIL_LENGTH,
       MAX_EMAIL_LENGTH
     );
+
+    if (!isEmail(req.body.email)) {
+      throw new Error(`Cannot process non-standard email property !`);
+    }
 
     if (emailError instanceof Error) {
       throw emailError;
