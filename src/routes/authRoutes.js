@@ -22,7 +22,10 @@ const isStrongPassword = (value) =>
 const isUsernameValid = (value) => /^[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*$/.test(value);
 
 const hashPassword = async (plainPassword) =>
-    await bcrypt.hash(plainPassword, process.env.BCRYPT_HASHING_ROUND);
+    await bcrypt.hash(
+        plainPassword,
+        parseInt(process.env.BCRYPT_HASHING_ROUND)
+    );
 const isPasswordMatch = async (plainPassword, hashedPassword) =>
     await bcrypt.compare(plainPassword, hashedPassword);
 
@@ -56,7 +59,7 @@ const validateStringProperty = (value, valueName, minLength, maxLength) => {
 };
 
 // TO-CONSIDER: Implement small fixed windows limiter (prevent spam) ?
-authRouter.post('/login', async (req, res, next) => {
+authRouter.post('/register', async (req, res, next) => {
     try {
         // SECURITY: Verify JSON body
         if (isFalsy(req.body)) {
@@ -137,14 +140,14 @@ authRouter.post('/login', async (req, res, next) => {
         // TO-NOTE: Might require the function to become async.
         // TO-DO: Make SQL query prepared to avoid SQL injection attacks.
 
-        res.status(200).send(`Login route work fine.`);
+        res.status(200).send(`Register route work fine.`);
     } catch (error) {
         next(error);
     }
 });
 
 // TO-CONSIDER: Implement small fixed windows limiter (prevent spam) ?
-authRouter.post('/register', async (req, res, next) => {
+authRouter.post('/login', async (req, res, next) => {
     try {
         // SECURITY: Verify JSON body
         if (isFalsy(req.body)) {
@@ -208,7 +211,7 @@ authRouter.post('/register', async (req, res, next) => {
         // TO-NOTE: Might require the function to become async.
         // TO-DO: Make SQL query prepared to avoid SQL injection attacks.
 
-        res.status(200).send(`Register route work fine.`);
+        res.status(200).send(`Login route work fine.`);
     } catch (error) {
         next(error);
     }
