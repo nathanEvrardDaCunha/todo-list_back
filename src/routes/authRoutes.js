@@ -14,6 +14,10 @@ const isHigherEqualThan = (value, higherNumber) => value < higherNumber;
 const isNotEqual = (value, equalNumber) => value != equalNumber;
 const isEmail = (value) =>
   /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value);
+const isStrongPassword = (value) =>
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{6,}$/.test(
+    value
+  );
 
 // TO-CONSIDER: Add prettier for better formatting ?
 
@@ -74,8 +78,6 @@ authRouter.post("/login", (req, res, next) => {
     }
 
     // SECURITY: Verify email property
-    // TO-DO: Add email pattern verification
-    // TO-CONSIDER: Enforce no special characters in email, only letters, hyphens, @ and numbers ?
     const MIN_EMAIL_LENGTH = 6;
     const MAX_EMAIL_LENGTH = 150;
     const emailError = validateStringProperty(
@@ -103,6 +105,12 @@ authRouter.post("/login", (req, res, next) => {
       MIN_PASSWORD_LENGTH,
       MAX_PASSWORD_LENGTH
     );
+
+    if (!isStrongPassword(req.body.password)) {
+      throw new Error(
+        `Cannot process weak password ! It should have one uppercase, lowercase, number, special character, and be at least 6 characters long.`
+      );
+    }
 
     if (passwordError instanceof Error) {
       throw passwordError;
@@ -138,8 +146,6 @@ authRouter.post("/register", (req, res, next) => {
     }
 
     // SECURITY: Verify email property
-    // TO-DO: Add email pattern verification
-    // TO-CONSIDER: Enforce no special characters in email, only letters, hyphens, @ and numbers ?
     const MIN_EMAIL_LENGTH = 6;
     const MAX_EMAIL_LENGTH = 150;
     const emailError = validateStringProperty(
@@ -167,6 +173,12 @@ authRouter.post("/register", (req, res, next) => {
       MIN_PASSWORD_LENGTH,
       MAX_PASSWORD_LENGTH
     );
+
+    if (!isStrongPassword(req.body.password)) {
+      throw new Error(
+        `Cannot process weak password ! It should have one uppercase, lowercase, number, special character, and be at least 6 characters long.`
+      );
+    }
 
     if (passwordError instanceof Error) {
       throw passwordError;
