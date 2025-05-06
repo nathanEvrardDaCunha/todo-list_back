@@ -20,8 +20,6 @@ const isStrongPassword = (value) =>
     );
 const isUsernameValid = (value) => /^[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*$/.test(value);
 
-// TO-CONSIDER: Add prettier for better formatting ?
-
 // TO-NOTE: Better to do these four below when having a fully functional auth system.
 // TO-CONSIDER: Add typescript without hot reload to avoid build problem ?
 // TO-CONSIDER: Add test for each functions ?
@@ -121,9 +119,9 @@ authRouter.post('/login', (req, res, next) => {
             throw passwordError;
         }
 
-        //TO-DO: Verify JSON string is valid (by parsing maybe ?).
-
         // TO-DO: Hash password.
+        // SECURITY: Hash user password
+
         // TO-DO: Create new user in database, with hashed password.
         // TO-CONSIDER: Create default "welcome" task for new user ?
         // TO-DO: Create token with JWT.
@@ -187,8 +185,6 @@ authRouter.post('/register', (req, res, next) => {
         if (passwordError instanceof Error) {
             throw passwordError;
         }
-
-        //TO-DO: Verify JSON string is valid (by parsing maybe ?).
 
         // TO-DO: Find if user exist in database.
         // TO-DO: Hash password.
