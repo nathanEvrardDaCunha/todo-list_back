@@ -18,6 +18,7 @@ const isStrongPassword = (value) =>
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{6,}$/.test(
     value
   );
+const isUsernameValid = (value) => /^[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*$/.test(value);
 
 // TO-CONSIDER: Add prettier for better formatting ?
 
@@ -73,6 +74,12 @@ authRouter.post("/login", (req, res, next) => {
       MAX_USERNAME_LENGTH
     );
 
+    if (!isUsernameValid(req.body.username)) {
+      throw new Error(
+        `Cannot process non-valid username ! Only letters, numbers and hyphen are allowed.`
+      );
+    }
+
     if (usernameError instanceof Error) {
       throw usernameError;
     }
@@ -96,7 +103,6 @@ authRouter.post("/login", (req, res, next) => {
     }
 
     // SECURITY: Verify password property
-    // TO-CONSIDER: Force stronger password with uppercase, lowercase, special characters and number verification ?
     const MIN_PASSWORD_LENGTH = 6;
     const MAX_PASSWORD_LENGTH = 200;
     const passwordError = validateStringProperty(
@@ -164,7 +170,6 @@ authRouter.post("/register", (req, res, next) => {
     }
 
     // SECURITY: Verify password property
-    // TO-CONSIDER: Force stronger password with uppercase, lowercase, special characters and number verification ?
     const MIN_PASSWORD_LENGTH = 6;
     const MAX_PASSWORD_LENGTH = 200;
     const passwordError = validateStringProperty(
