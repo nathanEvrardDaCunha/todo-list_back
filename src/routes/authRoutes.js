@@ -1,4 +1,5 @@
 import express from 'express';
+import bcrypt from 'bcrypt';
 
 const authRouter = express.Router();
 
@@ -19,6 +20,11 @@ const isStrongPassword = (value) =>
         value
     );
 const isUsernameValid = (value) => /^[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*$/.test(value);
+
+const hashPassword = async (plainPassword) =>
+    await bcrypt.hash(plainPassword, process.env.BCRYPT_HASHING_ROUND);
+const isPasswordMatch = async (plainPassword, hashedPassword) =>
+    await bcrypt.compare(plainPassword, hashedPassword);
 
 // TO-NOTE: Better to do these four below when having a fully functional auth system.
 // TO-CONSIDER: Add typescript without hot reload to avoid build problem ?
@@ -50,7 +56,7 @@ const validateStringProperty = (value, valueName, minLength, maxLength) => {
 };
 
 // TO-CONSIDER: Implement small fixed windows limiter (prevent spam) ?
-authRouter.post('/login', (req, res, next) => {
+authRouter.post('/login', async (req, res, next) => {
     try {
         // SECURITY: Verify JSON body
         if (isFalsy(req.body)) {
@@ -119,8 +125,9 @@ authRouter.post('/login', (req, res, next) => {
             throw passwordError;
         }
 
-        // TO-DO: Hash password.
         // SECURITY: Hash user password
+        const plainPassword = req.body.password;
+        const hashedPassword = await hashPassword(plainPassword);
 
         // TO-DO: Create new user in database, with hashed password.
         // TO-CONSIDER: Create default "welcome" task for new user ?
@@ -130,14 +137,14 @@ authRouter.post('/login', (req, res, next) => {
         // TO-NOTE: Might require the function to become async.
         // TO-DO: Make SQL query prepared to avoid SQL injection attacks.
 
-        res.status(200).send(`Login route work fine`);
+        res.status(200).send(`Login route work fine.`);
     } catch (error) {
         next(error);
     }
 });
 
 // TO-CONSIDER: Implement small fixed windows limiter (prevent spam) ?
-authRouter.post('/register', (req, res, next) => {
+authRouter.post('/register', async (req, res, next) => {
     try {
         // SECURITY: Verify JSON body
         if (isFalsy(req.body)) {
@@ -187,7 +194,13 @@ authRouter.post('/register', (req, res, next) => {
         }
 
         // TO-DO: Find if user exist in database.
-        // TO-DO: Hash password.
+
+        // SECURITY: Hash user password
+        const plainPassword = req.body.password;
+        const hashedPassword = await hashPassword(plainPassword);
+
+        // TO-DO: Hash database user password.
+
         // TO-DO: Compare hashed password with user's password stored in database.
         // TO-DO: Create token with JWT.
         // TO-DO: Send back JWT token to user.
@@ -195,7 +208,7 @@ authRouter.post('/register', (req, res, next) => {
         // TO-NOTE: Might require the function to become async.
         // TO-DO: Make SQL query prepared to avoid SQL injection attacks.
 
-        res.status(200).send(`Register route work fine`);
+        res.status(200).send(`Register route work fine.`);
     } catch (error) {
         next(error);
     }
