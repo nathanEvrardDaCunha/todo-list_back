@@ -1,6 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
+import { pool } from '../builds/database.js';
 
 dotenv.config();
 
@@ -50,6 +51,8 @@ async function isPasswordMatch(plainPassword, hashedPassword) {
 // TO-CONSIDER: Add typescript without hot reload to avoid build problem ?
 // TO-CONSIDER: Add test for each functions ?
 // TO-CONSIDER: Make SQL query prepared to avoid SQL injection attacks.
+
+// TO-CONSIDER: COuld return just true or false and then handle error outside, in a try catch ?
 function validateStringProperty(value, valueName, minLength, maxLength) {
     if (isUndefined(value)) {
         return new Error(`Cannot process undefined ${valueName} property !`);
@@ -72,6 +75,51 @@ function validateStringProperty(value, valueName, minLength, maxLength) {
     }
 
     return true;
+}
+
+async function isUsernameTaken(username) {
+    const client = await pool.connect();
+
+    const result = await client.query(`SELECT * FROM users WHERE username=$1`, [
+        username,
+    ]);
+
+    client.release();
+
+    const zeroUsernameFound = 0;
+    if (result.rows.length > zeroUsernameFound) {
+        return true;
+    }
+
+    return false;
+}
+
+async function isEmailTaken(email) {
+    const client = await pool.connect();
+
+    const result = await client.query(`SELECT * FROM users WHERE email=$1`, [
+        email,
+    ]);
+
+    client.release();
+
+    const zeroEmailFound = 0;
+    if (result.rows.length > zeroEmailFound) {
+        return true;
+    }
+
+    return false;
+}
+
+async function postUser(username, email, hashedPassword) {
+    const client = await pool.connect();
+
+    await client.query(
+        `INSERT INTO users (username, email, password) VALUES ($1, $2, $3)`,
+        [username, email, hashedPassword]
+    );
+
+    client.release();
 }
 
 // TO-CONSIDER: Implement small fixed windows limiter (prevent spam) ?
@@ -140,15 +188,29 @@ authRouter.post('/register', async (req, res, next) => {
             throw passwordError;
         }
 
+        const databaseEmail = await isEmailTaken(req.body.email);
+        if (databaseEmail) {
+            throw new Error(
+                `Cannot process sign-up because email is already present in database !`
+            );
+        }
+
+        const databaseUsername = await isUsernameTaken(req.body.username);
+        if (databaseUsername) {
+            throw new Error(
+                `Cannot process sign-up because username is already present in database !`
+            );
+        }
+
         const hashedPassword = await hashPassword(req.body.password);
 
         // TO-DO: Create new user in database, with hashed password.
+        await postUser(req.body.username, req.body.email, hashedPassword);
+
         // TO-CONSIDER: Create default "welcome" task for new user ?
+
         // TO-DO: Create token with JWT.
         // TO-DO: Send back JWT token to user.
-        // TO-DO: Throw error if there is a problem along the way.
-        // TO-NOTE: Might require the function to become async.
-        // TO-DO: Make SQL query prepared to avoid SQL injection attacks.
 
         res.status(200).json({
             message: 'Register route work now !',

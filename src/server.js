@@ -6,6 +6,7 @@ import {
     establishDatabaseConnection,
     initializeDatabase,
 } from './builds/database.js';
+import { pool } from './builds/database.js';
 
 dotenv.config();
 const app = express();
@@ -18,6 +19,27 @@ app.get('/api', (req, res) => {
 });
 
 app.use('/api/auth', authRouter);
+
+app.get('/api/users', async (req, res) => {
+    try {
+        const client = await pool.connect();
+
+        const result = await client.query(`SELECT * from users`);
+
+        client.release();
+
+        res.status(200).json({
+            result: result.rows,
+        });
+    } catch (error) {
+        console.error('Database connection error:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Database connection failed',
+            error: error.message,
+        });
+    }
+});
 
 app.use(errorHandler);
 

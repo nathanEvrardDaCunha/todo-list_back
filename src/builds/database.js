@@ -72,4 +72,4 @@ async function initializeDatabase() {
     }
 }
 
-export { establishDatabaseConnection, initializeDatabase };
+export { pool, establishDatabaseConnection, initializeDatabase };
