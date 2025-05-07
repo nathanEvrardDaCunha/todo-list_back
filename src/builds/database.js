@@ -5,7 +5,7 @@ dotenv.config();
 
 const { Pool } = pkg;
 
-// TO-NOTE: Different order or argument from my experiments from before.
+// TO-DO: Validate my environment properties are defined, else, create fallback values.
 const pool = new Pool({
     database: process.env.DATABASE_NAME,
     host: process.env.DATABASE_HOST,
@@ -15,21 +15,17 @@ const pool = new Pool({
 });
 
 pool.on('connect', () => {
-    // TO-DO: Change by DATABASE_PORT
     console.log(
-        `Connection pool established with database ${process.env.DATABASE_NAME} on port ${process.env.DATABASE_HOST}`
+        `Connection pool established with database ${process.env.DATABASE_NAME} on port ${process.env.DATABASE_PORT}`
     );
 });
 
 // TO-CONSIDER: Find a way to relaunch automatically the pool when it close ?
-// TO-ANALYZE: In my experiments, it's -1 and not 1.
 pool.on('error', (err) => {
-    // Add err parameter
     console.log(`Unexpected error occurred on idle database client:`, err);
-    process.exit(-1);
+    process.exit(1);
 });
 
-// TO-CONSIDER: If I remember correctly, there can only be one pool once, containing all the clients ?
 async function establishDatabaseConnection() {
     try {
         const client = await pool.connect();
@@ -42,8 +38,6 @@ async function establishDatabaseConnection() {
     }
 }
 
-// TO-CONSIDER: Each function should open and, especially, close it's client ?
-// TO-CONSIDER: Is it possible to link the VARCHAR value to a variable to enforce consistency between it and my routes logic ?
 // TO-DO: Sync tasks route logic to the tasks's table VARCHARs
 async function initializeDatabase() {
     try {
@@ -59,7 +53,6 @@ async function initializeDatabase() {
             );
         `);
 
-        // TO-ANALYZE: My experiment don't implement the FOREIGN KEY like that.
         await client.query(`CREATE TABLE IF NOT EXISTS tasks (
                 id SERIAL PRIMARY KEY,
                 user_id INT NOT NULL,
@@ -72,16 +65,11 @@ async function initializeDatabase() {
             )
         `);
 
-        // TO-CONSIDER: Is it better to put the console.log before or after the client.release ?
-        // Can the client release fail and crash the program ?
         client.release();
         console.log(`Database initialization has been completed.`);
     } catch (error) {
-        // TO-ANALYZE: My experiment doesn't throw the error but console.error it.
-        throw new Error(`Cannot initialize the database !`, error);
+        throw new Error(`Cannot initialize the database! ${error.message}`);
     }
 }
 
-// TO-ANALYZE: In my experiment, the first export also included 'pool'.
-export { pool, establishDatabaseConnection, initializeDatabase };
-export default pool;
+export { establishDatabaseConnection, initializeDatabase };

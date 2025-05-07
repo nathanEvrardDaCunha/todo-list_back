@@ -6,13 +6,21 @@ services:
       - DATABASE_URL=postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}
       - NODE_ENV=development
       - PORT=${APP_PORT}
+      - BCRYPT_HASHING_ROUND=${BCRYPT_HASHING_ROUND}
     ports:
       - "${APP_PORT}:${APP_PORT}"
     depends_on:
       - db
     volumes:
       - .:/app
+      - /app/node_modules  # This prevents your local node_modules from being mounted
     restart: unless-stopped
+    # Optional resource constraints to prevent resource starvation
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
 
   db:
     image: postgres:13-alpine

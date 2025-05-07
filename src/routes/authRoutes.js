@@ -1,5 +1,8 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const authRouter = express.Router();
 
@@ -21,47 +24,59 @@ const isStrongPassword = (value) =>
     );
 const isUsernameValid = (value) => /^[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*$/.test(value);
 
-const hashPassword = async (plainPassword) =>
-    await bcrypt.hash(
-        plainPassword,
-        parseInt(process.env.BCRYPT_HASHING_ROUND)
-    );
-const isPasswordMatch = async (plainPassword, hashedPassword) =>
-    await bcrypt.compare(plainPassword, hashedPassword);
+// TO-DO: Validate my environment properties are defined, else, create fallback values.
+async function hashPassword(plainPassword) {
+    try {
+        return bcrypt.hash(
+            plainPassword,
+            parseInt(process.env.BCRYPT_HASHING_ROUND)
+        );
+    } catch (error) {
+        console.error('Error hashing password:', error);
+        throw new Error('Password hashing failed');
+    }
+}
+
+async function isPasswordMatch(plainPassword, hashedPassword) {
+    try {
+        return await bcrypt.compare(plainPassword, hashedPassword);
+    } catch (error) {
+        console.error('Error comparing passwords:', error);
+        throw new Error('Password comparison failed');
+    }
+}
 
 // TO-NOTE: Better to do these four below when having a fully functional auth system.
 // TO-CONSIDER: Add typescript without hot reload to avoid build problem ?
 // TO-CONSIDER: Add test for each functions ?
-// TO-CONSIDER: Divide the logics into services, routers and models ?
 // TO-CONSIDER: Make SQL query prepared to avoid SQL injection attacks.
-const validateStringProperty = (value, valueName, minLength, maxLength) => {
-    // if (isUndefined(value)) {
-    //     return new Error(`Cannot process undefined ${valueName} property !`);
-    // }
+function validateStringProperty(value, valueName, minLength, maxLength) {
+    if (isUndefined(value)) {
+        return new Error(`Cannot process undefined ${valueName} property !`);
+    }
 
-    // if (isNotString(value)) {
-    //     return new Error(`Cannot process non-string ${valueName} property !`);
-    // }
+    if (isNotString(value)) {
+        return new Error(`Cannot process non-string ${valueName} property !`);
+    }
 
-    // if (isShorterEqualThan(value.length, minLength)) {
-    //     return new Error(
-    //         `Cannot process ${valueName} property shorter than ${minLength} characters !`
-    //     );
-    // }
+    if (isShorterEqualThan(value.length, minLength)) {
+        return new Error(
+            `Cannot process ${valueName} property shorter than ${minLength} characters !`
+        );
+    }
 
-    // if (isLongerEqualThan(value.length, maxLength)) {
-    //     return new Error(
-    //         `Cannot process ${valueName} property longer than ${maxLength} characters !`
-    //     );
-    // }
+    if (isLongerEqualThan(value.length, maxLength)) {
+        return new Error(
+            `Cannot process ${valueName} property longer than ${maxLength} characters !`
+        );
+    }
 
     return true;
-};
+}
 
 // TO-CONSIDER: Implement small fixed windows limiter (prevent spam) ?
 authRouter.post('/register', async (req, res, next) => {
     try {
-        // SECURITY: Verify JSON body
         if (isFalsy(req.body)) {
             throw new Error(`Cannot process undefined request body !`);
         }
@@ -70,7 +85,6 @@ authRouter.post('/register', async (req, res, next) => {
             throw new Error(`Cannot process request body of the wrong size !`);
         }
 
-        // SECURITY: Verify username property
         const MIN_USERNAME_LENGTH = 5;
         const MAX_USERNAME_LENGTH = 50;
         const usernameError = validateStringProperty(
@@ -90,7 +104,6 @@ authRouter.post('/register', async (req, res, next) => {
             throw usernameError;
         }
 
-        // SECURITY: Verify email property
         const MIN_EMAIL_LENGTH = 6;
         const MAX_EMAIL_LENGTH = 150;
         const emailError = validateStringProperty(
@@ -108,7 +121,6 @@ authRouter.post('/register', async (req, res, next) => {
             throw emailError;
         }
 
-        // SECURITY: Verify password property
         const MIN_PASSWORD_LENGTH = 6;
         const MAX_PASSWORD_LENGTH = 200;
         const passwordError = validateStringProperty(
@@ -128,9 +140,7 @@ authRouter.post('/register', async (req, res, next) => {
             throw passwordError;
         }
 
-        // SECURITY: Hash user password
-        const plainPassword = req.body.password;
-        const hashedPassword = await hashPassword(plainPassword);
+        const hashedPassword = await hashPassword(req.body.password);
 
         // TO-DO: Create new user in database, with hashed password.
         // TO-CONSIDER: Create default "welcome" task for new user ?
@@ -140,7 +150,10 @@ authRouter.post('/register', async (req, res, next) => {
         // TO-NOTE: Might require the function to become async.
         // TO-DO: Make SQL query prepared to avoid SQL injection attacks.
 
-        res.status(200).send(`Register route work fine.`);
+        res.status(200).json({
+            message: 'Register route work now !',
+            hashedPassword: hashedPassword,
+        });
     } catch (error) {
         next(error);
     }
@@ -149,7 +162,6 @@ authRouter.post('/register', async (req, res, next) => {
 // TO-CONSIDER: Implement small fixed windows limiter (prevent spam) ?
 authRouter.post('/login', async (req, res, next) => {
     try {
-        // SECURITY: Verify JSON body
         if (isFalsy(req.body)) {
             throw new Error(`Cannot process undefined request body !`);
         }
@@ -158,7 +170,6 @@ authRouter.post('/login', async (req, res, next) => {
             throw new Error(`Cannot process request body of the wrong size !`);
         }
 
-        // SECURITY: Verify email property
         const MIN_EMAIL_LENGTH = 6;
         const MAX_EMAIL_LENGTH = 150;
         const emailError = validateStringProperty(
@@ -176,7 +187,6 @@ authRouter.post('/login', async (req, res, next) => {
             throw emailError;
         }
 
-        // SECURITY: Verify password property
         const MIN_PASSWORD_LENGTH = 6;
         const MAX_PASSWORD_LENGTH = 200;
         const passwordError = validateStringProperty(
@@ -198,11 +208,7 @@ authRouter.post('/login', async (req, res, next) => {
 
         // TO-DO: Find if user exist in database.
 
-        // SECURITY: Hash user password
-        const plainPassword = req.body.password;
-        const hashedPassword = await hashPassword(plainPassword);
-
-        // TO-DO: Hash database user password.
+        const hashedPassword = await hashPassword(req.body.password);
 
         // TO-DO: Compare hashed password with user's password stored in database.
         // TO-DO: Create token with JWT.
@@ -211,7 +217,10 @@ authRouter.post('/login', async (req, res, next) => {
         // TO-NOTE: Might require the function to become async.
         // TO-DO: Make SQL query prepared to avoid SQL injection attacks.
 
-        res.status(200).send(`Login route work fine.`);
+        res.status(200).json({
+            message: 'Login route work now !',
+            hashedPassword: hashedPassword,
+        });
     } catch (error) {
         next(error);
     }
