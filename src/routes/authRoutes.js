@@ -50,9 +50,8 @@ async function isPasswordMatch(plainPassword, hashedPassword) {
 // TO-NOTE: Better to do these four below when having a fully functional auth system.
 // TO-CONSIDER: Add typescript without hot reload to avoid build problem ?
 // TO-CONSIDER: Add test for each functions ?
-// TO-CONSIDER: Make SQL query prepared to avoid SQL injection attacks.
 
-// TO-CONSIDER: COuld return just true or false and then handle error outside, in a try catch ?
+// TO-CONSIDER: Could return just true or false and then handle error outside, in a try catch ?
 function validateStringProperty(value, valueName, minLength, maxLength) {
     if (isUndefined(value)) {
         return new Error(`Cannot process undefined ${valueName} property !`);
@@ -120,6 +119,15 @@ async function postUser(username, email, hashedPassword) {
     );
 
     client.release();
+}
+
+async function getUserByEmail(email) {
+    const client = await pool.connect();
+    const result = await client.query('SELECT * FROM users WHERE email = $1', [
+        email,
+    ]);
+    client.release();
+    return result.rows[0];
 }
 
 // TO-CONSIDER: Implement small fixed windows limiter (prevent spam) ?
@@ -204,7 +212,6 @@ authRouter.post('/register', async (req, res, next) => {
 
         const hashedPassword = await hashPassword(req.body.password);
 
-        // TO-DO: Create new user in database, with hashed password.
         await postUser(req.body.username, req.body.email, hashedPassword);
 
         // TO-CONSIDER: Create default "welcome" task for new user ?
@@ -212,10 +219,7 @@ authRouter.post('/register', async (req, res, next) => {
         // TO-DO: Create token with JWT.
         // TO-DO: Send back JWT token to user.
 
-        res.status(200).json({
-            message: 'Register route work now !',
-            hashedPassword: hashedPassword,
-        });
+        res.status(200).json({ message: 'Register route work now !' });
     } catch (error) {
         next(error);
     }
@@ -268,20 +272,24 @@ authRouter.post('/login', async (req, res, next) => {
             throw passwordError;
         }
 
-        // TO-DO: Find if user exist in database.
+        const user = await getUserByEmail(req.body.email);
+        if (!user) {
+            throw new Error('Invalid email or password!');
+        }
 
-        const hashedPassword = await hashPassword(req.body.password);
+        const passwordMatch = await isPasswordMatch(
+            req.body.password,
+            user.password
+        );
+        if (!passwordMatch) {
+            throw new Error('Invalid email or password!');
+        }
 
-        // TO-DO: Compare hashed password with user's password stored in database.
         // TO-DO: Create token with JWT.
         // TO-DO: Send back JWT token to user.
-        // TO-DO: Throw error if there is a problem along the way.
-        // TO-NOTE: Might require the function to become async.
-        // TO-DO: Make SQL query prepared to avoid SQL injection attacks.
 
         res.status(200).json({
-            message: 'Login route work now !',
-            hashedPassword: hashedPassword,
+            message: 'Login successful!',
         });
     } catch (error) {
         next(error);
