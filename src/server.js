@@ -53,7 +53,7 @@ app.get('/api/db-test', async (req, res) => {
         // ...existing code...
         // TO-DO: Increment automatically PRIMARY KEY
         await client.query(
-            "INSERT INTO users (id, username, email, password) VALUES (110, 'marcel', 'marcel.gustave@example.com', 'Azerty123!')"
+            "INSERT INTO users (id, username, email, password) VALUES (100, 'marcel', 'marcel.gustave@example.com', 'Azerty123!')"
         );
 
         const userTable = await client.query(
@@ -126,7 +126,6 @@ const startServer = async () => {
 
             // Start the server
             app.listen(process.env.APP_PORT, () => {
-                console.log('TESSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSST');
                 console.log(`Server running in ${process.env.NODE_ENV} mode`);
                 console.log(
                     `API available at: ${process.env.APP_URL}${process.env.APP_PORT}`
