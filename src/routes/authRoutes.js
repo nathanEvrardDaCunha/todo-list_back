@@ -35,25 +35,25 @@ const isPasswordMatch = async (plainPassword, hashedPassword) =>
 // TO-CONSIDER: Divide the logics into services, routers and models ?
 // TO-CONSIDER: Make SQL query prepared to avoid SQL injection attacks.
 const validateStringProperty = (value, valueName, minLength, maxLength) => {
-    if (isUndefined(value)) {
-        return new Error(`Cannot process undefined ${valueName} property !`);
-    }
+    // if (isUndefined(value)) {
+    //     return new Error(`Cannot process undefined ${valueName} property !`);
+    // }
 
-    if (isNotString(value)) {
-        return new Error(`Cannot process non-string ${valueName} property !`);
-    }
+    // if (isNotString(value)) {
+    //     return new Error(`Cannot process non-string ${valueName} property !`);
+    // }
 
-    if (isShorterEqualThan(value.length, minLength)) {
-        return new Error(
-            `Cannot process ${valueName} property shorter than ${minLength} characters !`
-        );
-    }
+    // if (isShorterEqualThan(value.length, minLength)) {
+    //     return new Error(
+    //         `Cannot process ${valueName} property shorter than ${minLength} characters !`
+    //     );
+    // }
 
-    if (isLongerEqualThan(value.length, maxLength)) {
-        return new Error(
-            `Cannot process ${valueName} property longer than ${maxLength} characters !`
-        );
-    }
+    // if (isLongerEqualThan(value.length, maxLength)) {
+    //     return new Error(
+    //         `Cannot process ${valueName} property longer than ${maxLength} characters !`
+    //     );
+    // }
 
     return true;
 };

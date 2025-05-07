@@ -1,4 +1,4 @@
-import pkg, { Pool } from 'pg';
+import pkg from 'pg';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -6,7 +6,7 @@ dotenv.config();
 const { Pool } = pkg;
 
 // TO-NOTE: Different order or argument from my experiments from before.
-const pool = Pool({
+const pool = new Pool({
     database: process.env.DATABASE_NAME,
     host: process.env.DATABASE_HOST,
     port: process.env.DATABASE_PORT,
@@ -15,18 +15,21 @@ const pool = Pool({
 });
 
 pool.on('connect', () => {
+    // TO-DO: Change by DATABASE_PORT
     console.log(
         `Connection pool established with database ${process.env.DATABASE_NAME} on port ${process.env.DATABASE_HOST}`
     );
 });
 
 // TO-CONSIDER: Find a way to relaunch automatically the pool when it close ?
-pool.on('error', () => {
-    console.log(`Unexpected error occurred on idle database client`, err);
+// TO-ANALYZE: In my experiments, it's -1 and not 1.
+pool.on('error', (err) => {
+    // Add err parameter
+    console.log(`Unexpected error occurred on idle database client:`, err);
     process.exit(-1);
 });
 
-// TO-TEST: If I remember correctly, there can only be one pool once, containing all the clients ?
+// TO-CONSIDER: If I remember correctly, there can only be one pool once, containing all the clients ?
 async function establishDatabaseConnection() {
     try {
         const client = await pool.connect();
@@ -56,9 +59,10 @@ async function initializeDatabase() {
             );
         `);
 
-        // TO-CONSIDER: My experiment don't implement the FOREIGN KEY like that.
+        // TO-ANALYZE: My experiment don't implement the FOREIGN KEY like that.
         await client.query(`CREATE TABLE IF NOT EXISTS tasks (
                 id SERIAL PRIMARY KEY,
+                user_id INT NOT NULL,
                 title VARCHAR(150) NOT NULL,
                 description VARCHAR(300) NULL,
                 completed BOOLEAN NOT NULL DEFAULT FALSE,
@@ -68,14 +72,16 @@ async function initializeDatabase() {
             )
         `);
 
+        // TO-CONSIDER: Is it better to put the console.log before or after the client.release ?
+        // Can the client release fail and crash the program ?
         client.release();
         console.log(`Database initialization has been completed.`);
     } catch (error) {
-        // TO-CONSIDER: My experiment doesn't throw the error but console.error it.
+        // TO-ANALYZE: My experiment doesn't throw the error but console.error it.
         throw new Error(`Cannot initialize the database !`, error);
     }
 }
 
-// TO-CONSIDER: In my experiment, the first export also included 'pool'.
-export { establishDatabaseConnection, initializeDatabase };
+// TO-ANALYZE: In my experiment, the first export also included 'pool'.
+export { pool, establishDatabaseConnection, initializeDatabase };
 export default pool;
