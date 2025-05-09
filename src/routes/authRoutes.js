@@ -3,10 +3,12 @@ import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 import { pool } from '../builds/database.js';
 import jwt from 'jsonwebtoken';
+import cookieParser from 'cookie-parser';
 
 dotenv.config();
 
 const authRouter = express.Router();
+authRouter.use(cookieParser());
 
 // TO-CONSIDER: Transfer these pure functions in one utility first file ?
 
@@ -111,12 +113,12 @@ async function isEmailTaken(email) {
     return false;
 }
 
-async function postUser(username, email, hashedPassword, refreshToken) {
+async function postUser(username, email, hashedPassword) {
     const client = await pool.connect();
 
     await client.query(
-        `INSERT INTO users (username, email, password, refresh_token) VALUES ($1, $2, $3, $4)`,
-        [username, email, hashedPassword, refreshToken]
+        `INSERT INTO users (username, email, password) VALUES ($1, $2, $3)`,
+        [username, email, hashedPassword]
     );
 
     client.release();
@@ -223,12 +225,7 @@ authRouter.post('/register', async (req, res, next) => {
 
         const hashedPassword = await hashPassword(req.body.password);
 
-        await postUser(
-            req.body.username,
-            req.body.email,
-            hashedPassword,
-            process.env.TEMPORARY_TOKEN
-        );
+        await postUser(req.body.username, req.body.email, hashedPassword);
 
         const user = await getUserByEmail(req.body.email);
 
@@ -238,7 +235,7 @@ authRouter.post('/register', async (req, res, next) => {
             { expiresIn: '14d' }
         );
 
-        updateRefreshTokenByUserId(refreshToken, user.id);
+        await updateRefreshTokenByUserId(refreshToken, user.id);
 
         // TO-CONSIDER: Create default "welcome" task for new user ?
 
@@ -311,8 +308,7 @@ authRouter.post('/login', async (req, res, next) => {
         const accessToken = jwt.sign(
             { id: user.id },
             process.env.ACCESS_TOKEN,
-            { expiresIn: '30s' }
-            // { expiresIn: '5m' }
+            { expiresIn: '5m' }
         );
         const refreshToken = jwt.sign(
             { id: user.id },
@@ -339,6 +335,36 @@ authRouter.post('/login', async (req, res, next) => {
     }
 });
 
-// TO-CONSIDER: Add logout route ?
+authRouter.post('/logout', async (req, res, next) => {
+    try {
+        const refreshToken = req.cookies.refreshToken;
+
+        if (!refreshToken) {
+            return res.status(200).json({
+                message: 'Cannot proceed because user is already logged out !',
+            });
+        }
+
+        // Clear the refresh token cookie
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            maxAge: 0,
+        });
+
+        // Update database to remove refresh token
+
+        // TO-CONSIDER: IS it a good (aka, safe and secure) idea to use TEMPORARY_TOKEN ?
+        const client = await pool.connect();
+        await client.query(
+            'UPDATE users SET refresh_token = $1 WHERE refresh_token = $2',
+            [null, refreshToken]
+        );
+        client.release();
+
+        res.status(200).json({ message: 'Successfully logged out' });
+    } catch (error) {
+        next(error);
+    }
+});
 
 export default authRouter;

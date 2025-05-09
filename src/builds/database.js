@@ -48,7 +48,7 @@ async function initializeDatabase() {
                 username VARCHAR(50) NOT NULL UNIQUE,
                 email VARCHAR(150) NOT NULL UNIQUE,
                 password VARCHAR(200) NOT NULL,
-                refresh_token VARCHAR(400) NOT NULL UNIQUE,
+                refresh_token VARCHAR(400) UNIQUE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );

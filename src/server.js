@@ -28,12 +28,13 @@ app.use('/token', refreshRouter);
 
 app.use(tokenHandler);
 
+// TO-DO: Make in it's own file, and, add verification to have refreshToken, not just token Bearer valid
 app.get('/api/users', async (req, res) => {
     try {
         const client = await pool.connect();
 
         const result = await client.query(
-            `SELECT id, username, email, created_at, updated_at from users`
+            `SELECT id, username, email, created_at, updated_at, refresh_token from users`
         );
 
         client.release();

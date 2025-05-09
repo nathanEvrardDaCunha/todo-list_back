@@ -1,39 +1,3 @@
-// import jwt from 'jsonwebtoken';
-// import dotenv from 'dotenv';
-// import { pool } from '../builds/database.js';
-// import express from 'express';
-
-// dotenv.config();
-
-// const refreshRouter = express.Router();
-
-// refreshRouter.get('/refresh-token', async (req, res, next) => {
-//     try {
-//         const cookies = req.cookies.refre;
-
-//         if (!cookies) {
-
-//             throw new Error(`Cannot proceed because cookies are undefined !`);
-//         }
-
-//         const client = await pool.connect();
-//         const result = await client.query(
-//             'SELECT id, username, email, created_at, updated_at FROM users WHERE email = $1',
-//             [email]
-//         );
-//         client.release();
-//         // return result.rows[0];
-
-//         // const accessToken = jwt.sign(result.rows[0].id);
-
-//         res.status(200).json(result.rows[0]);
-//     } catch (error) {
-//         next(error);
-//     }
-// });
-
-// export default refreshRouter;
-
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { pool } from '../builds/database.js';
@@ -74,7 +38,7 @@ refreshRouter.get('/refresh-token', async (req, res, next) => {
         const accessToken = jwt.sign(
             { id: result.rows[0].id },
             process.env.ACCESS_TOKEN,
-            { expiresIn: '30s' }
+            { expiresIn: '5m' }
         );
 
         res.status(200).json({
