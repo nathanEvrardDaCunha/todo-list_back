@@ -2,6 +2,7 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 import { pool } from '../builds/database.js';
+import jwt from 'jsonwebtoken';
 
 dotenv.config();
 
@@ -285,9 +286,6 @@ authRouter.post('/login', async (req, res, next) => {
             throw new Error('Invalid email or password!');
         }
 
-        // TO-DO: Create token with JWT.
-        // TO-DO: Send back JWT token to user.
-
         res.status(200).json({
             message: 'Login successful!',
         });
@@ -295,5 +293,7 @@ authRouter.post('/login', async (req, res, next) => {
         next(error);
     }
 });
+
+// TO-CONSIDER: Add logout route ?
 
 export default authRouter;

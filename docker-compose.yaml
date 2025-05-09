@@ -11,11 +11,7 @@ services:
       - "${APP_PORT}:${APP_PORT}"
     depends_on:
       - db
-    volumes:
-      - .:/app
-      - /app/node_modules  # This prevents your local node_modules from being mounted
     restart: unless-stopped
-    # Optional resource constraints to prevent resource starvation
     deploy:
       resources:
         limits:
