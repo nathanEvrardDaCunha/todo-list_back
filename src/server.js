@@ -8,18 +8,23 @@ import {
 } from './builds/database.js';
 import { pool } from './builds/database.js';
 import tokenHandler from './middlewares/tokenHandler.js';
+import refreshRouter from './routes/refreshRoutes.js';
+import cookieParser from 'cookie-parser';
 
 dotenv.config();
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
 
 app.get('/api', (req, res) => {
     res.status(200).json({ message: 'Default API route work fine.' });
 });
 
 app.use('/api/auth', authRouter);
+
+app.use('/token', refreshRouter);
 
 app.use(tokenHandler);
 

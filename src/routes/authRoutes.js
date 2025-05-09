@@ -124,6 +124,7 @@ async function postUser(username, email, hashedPassword, refreshToken) {
 
 async function getUserByEmail(email) {
     const client = await pool.connect();
+    // TO-CONSIDER: Try using this part of query instead: 'id, username, email, created_at, updated_at' ?
     const result = await client.query('SELECT * FROM users WHERE email = $1', [
         email,
     ]);
