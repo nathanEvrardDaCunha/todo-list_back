@@ -310,7 +310,8 @@ authRouter.post('/login', async (req, res, next) => {
         const accessToken = jwt.sign(
             { id: user.id },
             process.env.ACCESS_TOKEN,
-            { expiresIn: '5m' }
+            { expiresIn: '30s' }
+            // { expiresIn: '5m' }
         );
         const refreshToken = jwt.sign(
             { id: user.id },
@@ -320,12 +321,17 @@ authRouter.post('/login', async (req, res, next) => {
 
         await updateRefreshTokenByUserId(refreshToken, user.id);
 
-        const result = await getUserByEmail(req.body.email);
-
-        console.log(result);
+        // TO-DO: Enable CORS to accept cookies
+        // TO-CONSIDER: Add 'secure: true' for HTTPS ?
+        // TO-CONSIDER: Add 'sameSite: strict' for something ?
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            maxAge: 14 * 24 * 60 * 60 * 1000,
+        });
 
         res.status(200).json({
             message: 'Login successful!',
+            accessToken: accessToken,
         });
     } catch (error) {
         next(error);

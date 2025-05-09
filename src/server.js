@@ -7,6 +7,7 @@ import {
     initializeDatabase,
 } from './builds/database.js';
 import { pool } from './builds/database.js';
+import tokenHandler from './middlewares/tokenHandler.js';
 
 dotenv.config();
 const app = express();
@@ -20,11 +21,15 @@ app.get('/api', (req, res) => {
 
 app.use('/api/auth', authRouter);
 
+app.use(tokenHandler);
+
 app.get('/api/users', async (req, res) => {
     try {
         const client = await pool.connect();
 
-        const result = await client.query(`SELECT * from users`);
+        const result = await client.query(
+            `SELECT id, username, email, created_at, updated_at from users`
+        );
 
         client.release();
 
