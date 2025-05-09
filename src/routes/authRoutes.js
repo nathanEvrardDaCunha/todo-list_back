@@ -111,12 +111,12 @@ async function isEmailTaken(email) {
     return false;
 }
 
-async function postUser(username, email, hashedPassword) {
+async function postUser(username, email, hashedPassword, refreshToken) {
     const client = await pool.connect();
 
     await client.query(
-        `INSERT INTO users (username, email, password) VALUES ($1, $2, $3)`,
-        [username, email, hashedPassword]
+        `INSERT INTO users (username, email, password, refresh_token) VALUES ($1, $2, $3, $4)`,
+        [username, email, hashedPassword, refreshToken]
     );
 
     client.release();
@@ -129,6 +129,15 @@ async function getUserByEmail(email) {
     ]);
     client.release();
     return result.rows[0];
+}
+
+async function updateRefreshTokenByUserId(refreshToken, userId) {
+    const client = await pool.connect();
+    await client.query(`UPDATE users SET refresh_token = $1 WHERE id = $2`, [
+        refreshToken,
+        userId,
+    ]);
+    client.release();
 }
 
 // TO-CONSIDER: Implement small fixed windows limiter (prevent spam) ?
@@ -213,12 +222,24 @@ authRouter.post('/register', async (req, res, next) => {
 
         const hashedPassword = await hashPassword(req.body.password);
 
-        await postUser(req.body.username, req.body.email, hashedPassword);
+        await postUser(
+            req.body.username,
+            req.body.email,
+            hashedPassword,
+            process.env.TEMPORARY_TOKEN
+        );
+
+        const user = await getUserByEmail(req.body.email);
+
+        const refreshToken = jwt.sign(
+            { id: user.id },
+            process.env.REFRESH_TOKEN,
+            { expiresIn: '14d' }
+        );
+
+        updateRefreshTokenByUserId(refreshToken, user.id);
 
         // TO-CONSIDER: Create default "welcome" task for new user ?
-
-        // TO-DO: Create token with JWT.
-        // TO-DO: Send back JWT token to user.
 
         res.status(200).json({ message: 'Register route work now !' });
     } catch (error) {
@@ -285,6 +306,23 @@ authRouter.post('/login', async (req, res, next) => {
         if (!passwordMatch) {
             throw new Error('Invalid email or password!');
         }
+
+        const accessToken = jwt.sign(
+            { id: user.id },
+            process.env.ACCESS_TOKEN,
+            { expiresIn: '5m' }
+        );
+        const refreshToken = jwt.sign(
+            { id: user.id },
+            process.env.REFRESH_TOKEN,
+            { expiresIn: '14d' }
+        );
+
+        await updateRefreshTokenByUserId(refreshToken, user.id);
+
+        const result = await getUserByEmail(req.body.email);
+
+        console.log(result);
 
         res.status(200).json({
             message: 'Login successful!',
