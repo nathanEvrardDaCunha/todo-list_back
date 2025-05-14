@@ -1,6 +1,5 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import authRouter from './routes/authRoutes.js';
 import errorHandler from './middlewares/errorHandler.js';
 import {
     establishDatabaseConnection,
@@ -10,6 +9,9 @@ import { pool } from './builds/database.js';
 import tokenHandler from './middlewares/tokenHandler.js';
 import refreshRouter from './routes/refreshRoutes.js';
 import cookieParser from 'cookie-parser';
+import authRouter from './routes/authRoutes.js';
+
+// TO-DO: Validate my environment properties are defined, else, create fallback values.
 
 dotenv.config();
 const app = express();
@@ -24,6 +26,8 @@ app.get('/api', (req, res) => {
 
 app.use('/api/auth', authRouter);
 
+// TO-CONSIDER: Also divide as router, controller... the refreshToken logic ?
+// => Or include it inside the authentication logic ?
 app.use('/token', refreshRouter);
 
 app.use(tokenHandler);
@@ -34,7 +38,7 @@ app.get('/api/users', async (req, res) => {
         const client = await pool.connect();
 
         const result = await client.query(
-            `SELECT id, username, email, created_at, updated_at, refresh_token from users`
+            `SELECT id, username, email, password, created_at, updated_at, refresh_token from users`
         );
 
         client.release();

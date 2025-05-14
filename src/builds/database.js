@@ -6,6 +6,7 @@ dotenv.config();
 const { Pool } = pkg;
 
 // TO-DO: Validate my environment properties are defined, else, create fallback values.
+
 const pool = new Pool({
     database: process.env.DATABASE_NAME,
     host: process.env.DATABASE_HOST,
