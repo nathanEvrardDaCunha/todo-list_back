@@ -9,6 +9,8 @@ import {
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
+import { DB_USER } from '../constants/constants.js';
+
 dotenv.config();
 
 const isUndefined = (value) => value === undefined;
@@ -65,11 +67,14 @@ function modernStringValidation(value, valueName, minLength, maxLength) {
     }
 }
 
-// Sync with database VARCHAR constraint
-// Fix magic number ?
-function modernUsernameValidation(username) {
+function validateUsername(username) {
     try {
-        modernStringValidation(username, 'username', 5, 50);
+        modernStringValidation(
+            username,
+            'username',
+            DB_USER.MIN_USERNAME_LENGTH,
+            DB_USER.MAX_USERNAME_LENGTH
+        );
 
         if (!isUsernameValid(username)) {
             throw new Error(
@@ -81,11 +86,14 @@ function modernUsernameValidation(username) {
     }
 }
 
-// Sync with database VARCHAR constraint
-// Fix magic number ?
-function modernPasswordValidation(password) {
+function validatePassword(password) {
     try {
-        modernStringValidation(password, 'password', 6, 200);
+        modernStringValidation(
+            password,
+            'password',
+            DB_USER.MIN_PASSWORD_LENGTH,
+            DB_USER.MAX_PASSWORD_LENGTH
+        );
 
         if (!isStrongPassword(password)) {
             throw new Error(
@@ -97,11 +105,14 @@ function modernPasswordValidation(password) {
     }
 }
 
-// Sync with database VARCHAR constraint
-// Fix magic number ?
-function modernEmailValidation(email) {
+function validateEmail(email) {
     try {
-        modernStringValidation(email, 'email', 6, 150);
+        modernStringValidation(
+            email,
+            'email',
+            DB_USER.MIN_EMAIL_LENGTH,
+            DB_USER.MAX_EMAIL_LENGTH
+        );
 
         if (!isEmail(email)) {
             throw new Error(`Cannot process non-standard email property !`);
@@ -111,7 +122,7 @@ function modernEmailValidation(email) {
     }
 }
 
-async function modernHashPassword(plainPassword) {
+async function hashPassword(plainPassword) {
     try {
         return await bcrypt.hash(
             plainPassword,
@@ -124,9 +135,9 @@ async function modernHashPassword(plainPassword) {
 
 async function registerUser(username, email, password) {
     try {
-        modernUsernameValidation(username);
-        modernEmailValidation(email);
-        modernPasswordValidation(password);
+        validateUsername(username);
+        validateEmail(email);
+        validatePassword(password);
 
         const databaseEmail = await isEmailTaken(email);
         if (databaseEmail) {
@@ -142,7 +153,7 @@ async function registerUser(username, email, password) {
             );
         }
 
-        const hashedPassword = await modernHashPassword(password);
+        const hashedPassword = await hashPassword(password);
 
         await postUser(username, email, hashedPassword);
 
@@ -170,8 +181,8 @@ async function registerUser(username, email, password) {
 
 async function loginUser(email, password) {
     try {
-        modernEmailValidation(email);
-        modernPasswordValidation(password);
+        validateEmail(email);
+        validatePassword(password);
 
         const user = await getUserByEmail(email);
         if (!user) {

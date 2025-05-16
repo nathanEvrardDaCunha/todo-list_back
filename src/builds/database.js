@@ -1,5 +1,6 @@
 import pkg from 'pg';
 import dotenv from 'dotenv';
+import { DB_USER, DB_TASK } from '../constants/constants.js';
 
 dotenv.config();
 
@@ -48,10 +49,10 @@ async function initializeDatabase() {
 
         await client.query(`CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
-                username VARCHAR(50) NOT NULL UNIQUE,
-                email VARCHAR(150) NOT NULL UNIQUE,
-                password VARCHAR(200) NOT NULL,
-                refresh_token VARCHAR(400) UNIQUE,
+                username VARCHAR(${DB_USER.MAX_USERNAME_LENGTH}) NOT NULL UNIQUE,
+                email VARCHAR(${DB_USER.MAX_EMAIL_LENGTH}) NOT NULL UNIQUE,
+                password VARCHAR(${DB_USER.MAX_PASSWORD_LENGTH}) NOT NULL,
+                refresh_token VARCHAR(${DB_USER.MAX_REFRESH_TOKEN_LENGTH}) UNIQUE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
@@ -60,8 +61,8 @@ async function initializeDatabase() {
         await client.query(`CREATE TABLE IF NOT EXISTS tasks (
                 id SERIAL PRIMARY KEY,
                 user_id INT NOT NULL,
-                title VARCHAR(150) NOT NULL,
-                description VARCHAR(300) NULL,
+                title VARCHAR(${DB_TASK.MAX_TITLE_LENGTH}) NOT NULL,
+                description VARCHAR(${DB_TASK.MAX_DESCRIPTION_LENGTH}) NULL,
                 completed BOOLEAN NOT NULL DEFAULT FALSE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
