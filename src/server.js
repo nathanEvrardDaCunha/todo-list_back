@@ -62,13 +62,7 @@ app.use(errorHandler);
 
 async function startServer() {
     try {
-        const isConnectionEstablished = await establishDatabaseConnection();
-
-        if (!isConnectionEstablished) {
-            throw new Error(
-                `Cannot establish connection to the database during server launch !`
-            );
-        }
+        await establishDatabaseConnection();
 
         await initializeDatabase();
 
@@ -76,6 +70,9 @@ async function startServer() {
             console.log(`Server running in ${process.env.NODE_ENV} mode.`);
             console.log(
                 `API is running on: ${process.env.APP_URL}${process.env.APP_PORT}.`
+            );
+            console.log(
+                `Pool established with database ${process.env.DATABASE_NAME} on port ${process.env.DATABASE_PORT}`
             );
         });
     } catch (error) {

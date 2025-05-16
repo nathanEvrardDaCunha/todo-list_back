@@ -23,26 +23,28 @@ pool.on('connect', () => {
 
 // TO-CONSIDER: Find a way to relaunch automatically the pool when it close ?
 pool.on('error', (err) => {
-    console.log(`Unexpected error occurred on idle database client:`, err);
+    console.error(`Unexpected error occurred on idle database client:`, err);
     process.exit(1);
 });
 
 async function establishDatabaseConnection() {
+    let client;
     try {
-        const client = await pool.connect();
-        console.log(`Connection established to database.`);
-        client.release();
-        return true;
+        client = await pool.connect();
     } catch (error) {
-        console.log(`Cannot established connection to database !`, error);
-        return false;
+        throw error;
+    } finally {
+        if (client) {
+            client.release();
+        }
     }
 }
 
 // TO-DO: Sync tasks route logic to the tasks's table VARCHARs
 async function initializeDatabase() {
+    let client;
     try {
-        const client = await pool.connect();
+        client = await pool.connect();
 
         await client.query(`CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
@@ -66,11 +68,12 @@ async function initializeDatabase() {
                 FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
             )
         `);
-
-        client.release();
-        console.log(`Database initialization has been completed.`);
     } catch (error) {
-        throw new Error(`Cannot initialize the database! ${error.message}`);
+        throw error;
+    } finally {
+        if (client) {
+            client.release();
+        }
     }
 }
 
