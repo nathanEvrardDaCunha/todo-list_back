@@ -12,6 +12,8 @@ import cookieParser from 'cookie-parser';
 import authRouter from './routes/authRoutes.js';
 
 // TO-DO: Validate my environment properties are defined, else, create fallback values.
+// TO-CONSIDER: Add typescript without hot reload, and on docker, to prevent editor errors
+// TO-CONSIDER: Add relevant HTTP Status Code: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
 
 dotenv.config();
 const app = express();

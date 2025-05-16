@@ -6,82 +6,116 @@ import { pool } from '../builds/database.js';
 
 // For example, if my query is wrong or wrongly formatted, will it throw or return an error, or anything else ?
 async function isUsernameTaken(username) {
-    const client = await pool.connect();
-
-    const result = await client.query(`SELECT * FROM users WHERE username=$1`, [
-        username,
-    ]);
-
-    client.release();
-
-    const zeroUsernameFound = 0;
-    if (result.rows.length > zeroUsernameFound) {
-        return true;
+    let client;
+    try {
+        client = await pool.connect();
+        const result = await client.query(
+            `SELECT * FROM users WHERE username=$1`,
+            [username]
+        );
+        return result.rows.length > 0;
+    } catch (error) {
+        throw new Error(error);
+    } finally {
+        if (client) {
+            client.release();
+        }
     }
-
-    return false;
 }
 
 // For example, if my query is wrong or wrongly formatted, will it throw or return an error, or anything else ?
 async function isEmailTaken(email) {
-    const client = await pool.connect();
-
-    const result = await client.query(`SELECT * FROM users WHERE email=$1`, [
-        email,
-    ]);
-
-    client.release();
-
-    const zeroEmailFound = 0;
-    if (result.rows.length > zeroEmailFound) {
-        return true;
+    let client;
+    try {
+        client = await pool.connect();
+        const result = await client.query(
+            `SELECT * FROM users WHERE email=$1`,
+            [email]
+        );
+        return result.rows.length > 0;
+    } catch (error) {
+        throw new Error(error);
+    } finally {
+        if (client) {
+            client.release();
+        }
     }
-
-    return false;
 }
 
 // For example, if my query is wrong or wrongly formatted, will it throw or return an error, or anything else ?
 async function postUser(username, email, hashedPassword) {
-    const client = await pool.connect();
-
-    await client.query(
-        `INSERT INTO users (username, email, password) VALUES ($1, $2, $3)`,
-        [username, email, hashedPassword]
-    );
-
-    client.release();
+    let client;
+    try {
+        client = await pool.connect();
+        await client.query(
+            `INSERT INTO users (username, email, password) VALUES ($1, $2, $3)`,
+            [username, email, hashedPassword]
+        );
+    } catch (error) {
+        throw new Error(error);
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
 }
 
 // If its promise<any>, does this mean it can return an error ? If so, it'll only return it and not throw it ?
 // For example, if my query is wrong or wrongly formatted, will it throw or return an error, or anything else ?
 async function getUserByEmail(email) {
-    const client = await pool.connect();
-    // TO-CONSIDER: Try using this part of query instead: 'id, username, email, created_at, updated_at' ?
-    const result = await client.query('SELECT * FROM users WHERE email = $1', [
-        email,
-    ]);
-    client.release();
-    return result.rows[0];
+    let client;
+    try {
+        client = await pool.connect();
+        // TO-CONSIDER: Try using this part of query instead: 'id, username, email, created_at, updated_at' ?
+        const result = await client.query(
+            'SELECT * FROM users WHERE email = $1',
+            [email]
+        );
+        // What if it doesn't find any user ?
+        return result.rows[0];
+    } catch (error) {
+        throw new Error(error);
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
 }
 
 // For example, if my query is wrong or wrongly formatted, will it throw or return an error, or anything else ?
 async function updateRefreshTokenByUserId(refreshToken, userId) {
-    const client = await pool.connect();
-    await client.query(`UPDATE users SET refresh_token = $1 WHERE id = $2`, [
-        refreshToken,
-        userId,
-    ]);
-    client.release();
+    let client;
+    try {
+        client = await pool.connect();
+        await client.query(
+            `UPDATE users SET refresh_token = $1 WHERE id = $2`,
+            [refreshToken, userId]
+        );
+    } catch (error) {
+        throw new Error(error);
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
 }
 
 // For example, if my query is wrong or wrongly formatted, will it throw or return an error, or anything else ?
 async function updateRefreshTokenToNull(refreshToken) {
-    const client = await pool.connect();
-    await client.query(
-        'UPDATE users SET refresh_token = $1 WHERE refresh_token = $2',
-        [null, refreshToken]
-    );
-    client.release();
+    let client;
+    try {
+        client = await pool.connect();
+        await client.query(
+            'UPDATE users SET refresh_token = $1 WHERE refresh_token = $2',
+            [null, refreshToken]
+        );
+    } catch (error) {
+        throw new Error(error);
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
 }
 
 export {
