@@ -1,5 +1,4 @@
 import express from 'express';
-import dotenv from 'dotenv';
 import errorHandler from './middlewares/errorHandler.js';
 import {
     establishDatabaseConnection,
@@ -10,12 +9,13 @@ import tokenHandler from './middlewares/tokenHandler.js';
 import refreshRouter from './routes/refreshRoutes.js';
 import cookieParser from 'cookie-parser';
 import authRouter from './routes/authRoutes.js';
+import { DB_CONFIGURATION } from './constants/database-constants.js';
+import { APP_CONFIGURATION } from './constants/application-constants.js';
 
 // TO-DO: Validate my environment properties are defined, else, create fallback values.
 // TO-CONSIDER: Add typescript without hot reload, and on docker, to prevent editor errors
 // TO-CONSIDER: Add relevant HTTP Status Code: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
 
-dotenv.config();
 const app = express();
 
 app.use(express.json());
@@ -66,13 +66,15 @@ async function startServer() {
 
         await initializeDatabase();
 
-        app.listen(process.env.APP_PORT, () => {
-            console.log(`Server running in ${process.env.NODE_ENV} mode.`);
+        app.listen(APP_CONFIGURATION.PORT, () => {
             console.log(
-                `API is running on: ${process.env.APP_URL}${process.env.APP_PORT}.`
+                `Server running in ${APP_CONFIGURATION.NODE_ENV} mode.`
             );
             console.log(
-                `Pool established with database ${process.env.DATABASE_NAME} on port ${process.env.DATABASE_PORT}`
+                `API is running on: ${APP_CONFIGURATION.URL}${APP_CONFIGURATION.PORT}.`
+            );
+            console.log(
+                `Pool established with database ${DB_CONFIGURATION.NAME} on port ${DB_CONFIGURATION.PORT}`
             );
         });
     } catch (error) {

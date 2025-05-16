@@ -1,7 +1,5 @@
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import { JWT_CONFIGURATION } from '../constants/jwt-constants.js';
 
 function tokenHandler(req, res, next) {
     const authorizationHeader = req.headers['authorization'];
@@ -14,7 +12,7 @@ function tokenHandler(req, res, next) {
 
     const token = authorizationHeader.split(' ')[1];
 
-    jwt.verify(token, process.env.ACCESS_TOKEN, (err, decoded) => {
+    jwt.verify(token, JWT_CONFIGURATION.ACCESS_TOKEN, (err, decoded) => {
         if (err) {
             return res.status(403).json({
                 message: 'Cannot proceed because access token is invalid !',

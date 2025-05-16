@@ -1,10 +1,8 @@
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
 import { pool } from '../builds/database.js';
 import express from 'express';
 import cookieParser from 'cookie-parser';
-
-dotenv.config();
+import { JWT_CONFIGURATION } from '../constants/jwt-constants.js';
 
 const refreshRouter = express.Router();
 refreshRouter.use(cookieParser());
@@ -19,7 +17,10 @@ refreshRouter.get('/refresh-token', async (req, res, next) => {
             );
         }
 
-        const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN);
+        const decoded = jwt.verify(
+            refreshToken,
+            JWT_CONFIGURATION.REFRESH_TOKEN
+        );
 
         const client = await pool.connect();
         const result = await client.query(
@@ -37,7 +38,7 @@ refreshRouter.get('/refresh-token', async (req, res, next) => {
         // Generate new access token
         const accessToken = jwt.sign(
             { id: result.rows[0].id },
-            process.env.ACCESS_TOKEN,
+            JWT_CONFIGURATION.ACCESS_TOKEN,
             { expiresIn: '5m' }
         );
 

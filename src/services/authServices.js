@@ -7,11 +7,10 @@ import {
     updateRefreshTokenToNull,
 } from '../models/authModels.js';
 import bcrypt from 'bcrypt';
-import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import { DB_USER } from '../constants/database-constants.js';
-
-dotenv.config();
+import { BCRYPT_CONFIGURATION } from '../constants/bcrypt-constants.js';
+import { JWT_CONFIGURATION } from '../constants/jwt-constants.js';
 
 const isUndefined = (value) => value === undefined;
 const isNotString = (value) => typeof value !== 'string';
@@ -126,7 +125,7 @@ async function hashPassword(plainPassword) {
     try {
         return await bcrypt.hash(
             plainPassword,
-            parseInt(process.env.BCRYPT_HASHING_ROUND)
+            parseInt(BCRYPT_CONFIGURATION.HASHING_ROUND)
         );
     } catch (error) {
         throw error;
@@ -167,7 +166,7 @@ async function registerUser(username, email, password) {
 
         const refreshToken = jwt.sign(
             { id: user.id },
-            process.env.REFRESH_TOKEN,
+            JWT_CONFIGURATION.REFRESH_TOKEN,
             {
                 expiresIn: '14d',
             }
@@ -200,7 +199,7 @@ async function loginUser(email, password) {
 
         const accessToken = jwt.sign(
             { id: user.id },
-            process.env.ACCESS_TOKEN,
+            JWT_CONFIGURATION.ACCESS_TOKEN,
             {
                 expiresIn: '5m',
             }
@@ -208,7 +207,7 @@ async function loginUser(email, password) {
 
         const refreshToken = jwt.sign(
             { id: user.id },
-            process.env.REFRESH_TOKEN,
+            JWT_CONFIGURATION.REFRESH_TOKEN,
             {
                 expiresIn: '14d',
             }
