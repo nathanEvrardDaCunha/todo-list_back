@@ -9,7 +9,7 @@ import {
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
-import { DB_USER } from '../constants/constants.js';
+import { DB_USER } from '../constants/database-constants.js';
 
 dotenv.config();
 

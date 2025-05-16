@@ -1,6 +1,6 @@
 import pkg from 'pg';
 import dotenv from 'dotenv';
-import { DB_USER, DB_TASK } from '../constants/constants.js';
+import { DB_USER, DB_TASK } from '../constants/database-constants.js';
 
 dotenv.config();
 
