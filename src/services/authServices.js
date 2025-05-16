@@ -26,168 +26,16 @@ const isStrongPassword = (value) =>
 // TO-CONSIDER: Add typescript without hot reload to avoid build problem ?
 // TO-CONSIDER: Add test for each functions ?
 // TO-CONSIDER: Move some functions into their respective, themed, files ?
-// Change status has string to 'isSuccess' as boolean (true or false)
-// FIX: If it's 'Failure' instead of 'failure', the condition doesn't work.
 // validate Things made flexible by inserting specific function for specific value in it (e.g: isEmail in validateString to test email)
 // TO-DO: Validate my environment properties are defined, else, create fallback values.
 
-async function hashPassword(plainPassword) {
-    try {
-        const hashedPassword = await bcrypt.hash(
-            plainPassword,
-            parseInt(process.env.BCRYPT_HASHING_ROUND)
-        );
-        return {
-            status: 'success',
-            message: 'Hashed password successfully.',
-            value: hashedPassword,
-        };
-    } catch (error) {
-        return {
-            status: 'failure',
-            message: 'Error during password hashing process !',
-        };
-    }
-}
-
 async function isPasswordMatch(plainPassword, hashedPassword) {
     try {
-        const isMatch = await bcrypt.compare(plainPassword, hashedPassword);
-        return {
-            status: 'success',
-            message: 'Hashed password successfully.',
-            value: isMatch,
-        };
+        return await bcrypt.compare(plainPassword, hashedPassword);
     } catch (error) {
-        return {
-            status: 'failure',
-            message: 'Error during password comparison process !',
-        };
+        throw error;
     }
 }
-
-function validateStringProperty(value, valueName, minLength, maxLength) {
-    if (isUndefined(value)) {
-        return {
-            status: 'failure',
-            message: `Cannot process undefined ${valueName} property !`,
-        };
-    }
-
-    if (isNotString(value)) {
-        return {
-            status: 'failure',
-            message: `Cannot process non-string ${valueName} property !`,
-        };
-    }
-
-    if (isShorterEqualThan(value.length, minLength)) {
-        return {
-            status: 'failure',
-            message: `Cannot process ${valueName} property shorter than ${minLength} characters !`,
-        };
-    }
-
-    if (isLongerEqualThan(value.length, maxLength)) {
-        return {
-            status: 'failure',
-            message: `Cannot process ${valueName} property longer than ${maxLength} characters !`,
-        };
-    }
-
-    return {
-        status: 'success',
-        message: 'Validate string property successfully.',
-    };
-}
-
-function validateUsername(username) {
-    const minUsernameLength = 5;
-    const maxUsernameLength = 50;
-    const stringResponse = validateStringProperty(
-        username,
-        'username',
-        minUsernameLength,
-        maxUsernameLength
-    );
-    if (stringResponse.status === 'failure') {
-        return stringResponse;
-    }
-
-    if (!isUsernameValid(username)) {
-        return {
-            status: 'failure',
-            message:
-                'Cannot process non-valid username ! Only letters, numbers and hyphen are allowed.',
-        };
-    }
-
-    return {
-        status: 'success',
-        message: 'Validate username request property successfully.',
-    };
-}
-
-function validateEmail(email) {
-    const minEmailLength = 6;
-    const maxEmailLength = 150;
-    const stringResponse = validateStringProperty(
-        email,
-        'email',
-        minEmailLength,
-        maxEmailLength
-    );
-    if (stringResponse.status === 'failure') {
-        return stringResponse;
-    }
-
-    if (!isEmail(email)) {
-        return {
-            status: 'failure',
-            message: `Cannot process non-standard email property !`,
-        };
-    }
-
-    return {
-        status: 'success',
-        message: 'Validate email request property successfully.',
-    };
-}
-
-function validatePassword(password) {
-    const minPasswordLength = 6;
-    const maxPasswordLength = 200;
-    const stringResponse = validateStringProperty(
-        password,
-        'password',
-        minPasswordLength,
-        maxPasswordLength
-    );
-    if (stringResponse.status === 'failure') {
-        return stringResponse;
-    }
-
-    if (!isStrongPassword(password)) {
-        return {
-            status: 'failure',
-            message: `Cannot process weak password ! Require one uppercase, lowercase, special character and number at least.`,
-        };
-    }
-
-    return {
-        status: 'success',
-        message: 'Validate password request property successfully.',
-    };
-}
-
-//
-//
-//
-//
-//
-//
-//
-//
 
 function modernStringValidation(value, valueName, minLength, maxLength) {
     try {
@@ -222,6 +70,7 @@ function modernStringValidation(value, valueName, minLength, maxLength) {
 function modernUsernameValidation(username) {
     try {
         modernStringValidation(username, 'username', 5, 50);
+
         if (!isUsernameValid(username)) {
             throw new Error(
                 `Cannot process non-valid username ! Only letters, numbers and hyphen are allowed.`
@@ -237,6 +86,7 @@ function modernUsernameValidation(username) {
 function modernPasswordValidation(password) {
     try {
         modernStringValidation(password, 'password', 6, 200);
+
         if (!isStrongPassword(password)) {
             throw new Error(
                 `Cannot process weak password ! It should have one uppercase, lowercase, number, special character, and be at least 6 characters long.`
@@ -252,6 +102,7 @@ function modernPasswordValidation(password) {
 function modernEmailValidation(email) {
     try {
         modernStringValidation(email, 'email', 6, 150);
+
         if (!isEmail(email)) {
             throw new Error(`Cannot process non-standard email property !`);
         }
@@ -276,23 +127,25 @@ async function registerUser(username, email, password) {
         modernUsernameValidation(username);
         modernEmailValidation(email);
         modernPasswordValidation(password);
-        // verifyIfEmailIsTaken
+
         const databaseEmail = await isEmailTaken(email);
         if (databaseEmail) {
             throw new Error(
                 `Cannot process sign-up because email is already present in database !`
             );
         }
-        // verifyIfUsernameIsTaken
+
         const databaseUsername = await isUsernameTaken(username);
         if (databaseUsername) {
             throw new Error(
                 `Cannot process sign-up because username is already present in database !`
             );
         }
+
         const hashedPassword = await modernHashPassword(password);
+
         await postUser(username, email, hashedPassword);
-        // verifyIfUserExist
+
         const user = await getUserByEmail(email);
         // Maybe useless because we call postUser the line above ?
         if (!user) {
@@ -300,7 +153,7 @@ async function registerUser(username, email, password) {
                 `Cannot process sign-up because not user has been found !`
             );
         }
-        // createRefreshToken
+
         const refreshToken = jwt.sign(
             { id: user.id },
             process.env.REFRESH_TOKEN,
@@ -308,6 +161,7 @@ async function registerUser(username, email, password) {
                 expiresIn: '14d',
             }
         );
+
         await updateRefreshTokenByUserId(refreshToken, user.id);
     } catch (error) {
         throw error;
@@ -315,47 +169,49 @@ async function registerUser(username, email, password) {
 }
 
 async function loginUser(email, password) {
-    const emailResponse = validateEmail(email);
-    if (emailResponse.status === 'failure') {
-        return emailResponse;
-    }
+    try {
+        modernEmailValidation(email);
+        modernPasswordValidation(password);
 
-    const passwordResponse = validatePassword(password);
-    if (passwordResponse.status === 'failure') {
-        return passwordResponse;
-    }
+        const user = await getUserByEmail(email);
+        if (!user) {
+            throw new Error(
+                `Cannot process sign-in because not user has been found !`
+            );
+        }
 
-    const user = await getUserByEmail(email);
-    if (!user) {
+        const passwordMatch = await isPasswordMatch(password, user.password);
+        if (!passwordMatch) {
+            throw new Error(
+                `Cannot process sign-in because of invalid credentials !`
+            );
+        }
+
+        const accessToken = jwt.sign(
+            { id: user.id },
+            process.env.ACCESS_TOKEN,
+            {
+                expiresIn: '5m',
+            }
+        );
+
+        const refreshToken = jwt.sign(
+            { id: user.id },
+            process.env.REFRESH_TOKEN,
+            {
+                expiresIn: '14d',
+            }
+        );
+
+        await updateRefreshTokenByUserId(refreshToken, user.id);
+
         return {
-            status: 'failure',
-            message: `Cannot process with login because of invalid credentials !`,
+            refreshToken: refreshToken,
+            accessToken: accessToken,
         };
+    } catch (error) {
+        throw error;
     }
-
-    const passwordMatch = await isPasswordMatch(password, user.password);
-    if (passwordMatch.status === 'failure' || passwordMatch.value === false) {
-        return {
-            status: 'failure',
-            message: `Cannot process with login because of invalid credentials !`,
-        };
-    }
-
-    const accessToken = jwt.sign({ id: user.id }, process.env.ACCESS_TOKEN, {
-        expiresIn: '5m',
-    });
-    const refreshToken = jwt.sign({ id: user.id }, process.env.REFRESH_TOKEN, {
-        expiresIn: '14d',
-    });
-
-    await updateRefreshTokenByUserId(refreshToken, user.id);
-
-    return {
-        status: 'success',
-        message: 'Process user logged in successfully.',
-        refreshToken: refreshToken,
-        accessToken: accessToken,
-    };
 }
 
 async function logoutUser(refreshToken) {
@@ -365,6 +221,7 @@ async function logoutUser(refreshToken) {
                 `Cannot proceed because user is already logged out or never logged before !`
             );
         }
+
         await updateRefreshTokenToNull(refreshToken);
     } catch (error) {
         throw error;
