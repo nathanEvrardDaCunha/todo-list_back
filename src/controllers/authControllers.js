@@ -62,22 +62,14 @@ async function postLogin(req, res, next) {
 async function postLogout(req, res, next) {
     try {
         const refreshToken = req.cookies.refreshToken;
-
-        const logoutResponse = await logoutUser(refreshToken);
-
-        if (logoutResponse.status === 'failure') {
-            throw new Error(logoutResponse.message);
-        }
-
+        await logoutUser(refreshToken);
         res.clearCookie('refreshToken', {
             httpOnly: true,
             maxAge: 0,
         });
-
         res.status(200).json({
             status: `success`,
             message: `The user has been logged out successfully.`,
-            accessToken: logoutResponse.accessToken,
         });
     } catch (error) {
         next(error);

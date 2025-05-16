@@ -278,19 +278,16 @@ async function loginUser(email, password) {
 }
 
 async function logoutUser(refreshToken) {
-    if (!refreshToken) {
-        return {
-            status: 'failure',
-            message: `Cannot proceed because user is already logged out or never logged before !`,
-        };
+    try {
+        if (!refreshToken) {
+            throw new Error(
+                `Cannot proceed because user is already logged out or never logged before !`
+            );
+        }
+        await updateRefreshTokenToNull(refreshToken);
+    } catch (error) {
+        throw error;
     }
-
-    await updateRefreshTokenToNull(refreshToken);
-
-    return {
-        status: 'success',
-        message: 'Process user logged out successfully.',
-    };
 }
 
 export { registerUser, loginUser, logoutUser };

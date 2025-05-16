@@ -34,7 +34,7 @@ app.use('/token', refreshRouter);
 
 app.use(tokenHandler);
 
-// TO-DO: Make in it's own file, and, add verification to have refreshToken, not just token Bearer valid
+// TO-FIX: User can still use it after log out because access token is still valid for few minutes
 app.get('/api/users', async (req, res) => {
     try {
         const client = await pool.connect();
