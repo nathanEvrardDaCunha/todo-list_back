@@ -18,14 +18,9 @@ import {
 // TO-CONSIDER: Add 'sameSite: strict' for something for anything related to cookies ? (e.g: res.cookie / res.clearCookies ?)
 
 async function postRegister(req, res, next) {
-    const { username, email, password } = req.body;
     try {
-        const registerResponse = await registerUser(username, email, password);
-
-        if (registerResponse.status === 'failure') {
-            throw new Error(registerResponse.message);
-        }
-
+        const { username, email, password } = req.body;
+        await registerUser(username, email, password);
         res.status(200).json({
             status: `success`,
             message: `The user has been registered successfully.`,

@@ -170,7 +170,7 @@ function validatePassword(password) {
     if (!isStrongPassword(password)) {
         return {
             status: 'failure',
-            message: `Cannot process weak password ! It should have one uppercase, lowercase, number, special character, and be at least 6 characters long.`,
+            message: `Cannot process weak password ! Require one uppercase, lowercase, special character and number at least.`,
         };
     }
 
@@ -180,57 +180,138 @@ function validatePassword(password) {
     };
 }
 
+//
+//
+//
+//
+//
+//
+//
+//
+
+function modernStringValidation(value, valueName, minLength, maxLength) {
+    try {
+        if (isUndefined(value)) {
+            throw new Error(`Cannot process undefined ${valueName} property !`);
+        }
+
+        if (isNotString(value)) {
+            throw new Error(
+                `Cannot process non-string ${valueName} property !`
+            );
+        }
+
+        if (isShorterEqualThan(value.length, minLength)) {
+            throw new Error(
+                `Cannot process ${valueName} property shorter than ${minLength} characters !`
+            );
+        }
+
+        if (isLongerEqualThan(value.length, maxLength)) {
+            throw new Error(
+                `Cannot process ${valueName} property longer than ${maxLength} characters !`
+            );
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+
+// Sync with database VARCHAR constraint
+// Fix magic number ?
+function modernUsernameValidation(username) {
+    try {
+        modernStringValidation(username, 'username', 5, 50);
+        if (!isUsernameValid(username)) {
+            throw new Error(
+                `Cannot process non-valid username ! Only letters, numbers and hyphen are allowed.`
+            );
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+
+// Sync with database VARCHAR constraint
+// Fix magic number ?
+function modernPasswordValidation(password) {
+    try {
+        modernStringValidation(password, 'password', 6, 200);
+        if (!isStrongPassword(password)) {
+            throw new Error(
+                `Cannot process weak password ! It should have one uppercase, lowercase, number, special character, and be at least 6 characters long.`
+            );
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+
+// Sync with database VARCHAR constraint
+// Fix magic number ?
+function modernEmailValidation(email) {
+    try {
+        modernStringValidation(email, 'email', 6, 150);
+        if (!isEmail(email)) {
+            throw new Error(`Cannot process non-standard email property !`);
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+
+async function modernHashPassword(plainPassword) {
+    try {
+        return await bcrypt.hash(
+            plainPassword,
+            parseInt(process.env.BCRYPT_HASHING_ROUND)
+        );
+    } catch (error) {
+        throw error;
+    }
+}
+
 async function registerUser(username, email, password) {
-    const usernameResponse = validateUsername(username);
-    if (usernameResponse.status === 'failure') {
-        return usernameResponse;
+    try {
+        modernUsernameValidation(username);
+        modernEmailValidation(email);
+        modernPasswordValidation(password);
+        // verifyIfEmailIsTaken
+        const databaseEmail = await isEmailTaken(email);
+        if (databaseEmail) {
+            throw new Error(
+                `Cannot process sign-up because email is already present in database !`
+            );
+        }
+        // verifyIfUsernameIsTaken
+        const databaseUsername = await isUsernameTaken(username);
+        if (databaseUsername) {
+            throw new Error(
+                `Cannot process sign-up because username is already present in database !`
+            );
+        }
+        const hashedPassword = await modernHashPassword(password);
+        await postUser(username, email, hashedPassword);
+        // verifyIfUserExist
+        const user = await getUserByEmail(email);
+        // Maybe useless because we call postUser the line above ?
+        if (!user) {
+            throw new Error(
+                `Cannot process sign-up because not user has been found !`
+            );
+        }
+        // createRefreshToken
+        const refreshToken = jwt.sign(
+            { id: user.id },
+            process.env.REFRESH_TOKEN,
+            {
+                expiresIn: '14d',
+            }
+        );
+        await updateRefreshTokenByUserId(refreshToken, user.id);
+    } catch (error) {
+        throw error;
     }
-
-    const emailResponse = validateEmail(email);
-    if (emailResponse.status === 'failure') {
-        return emailResponse;
-    }
-
-    const passwordResponse = validatePassword(password);
-    if (passwordResponse.status === 'failure') {
-        return passwordResponse;
-    }
-
-    const databaseEmail = await isEmailTaken(email);
-    if (databaseEmail) {
-        return {
-            status: 'failure',
-            message: `Cannot process sign-up because email is already present in database !`,
-        };
-    }
-
-    const databaseUsername = await isUsernameTaken(username);
-    if (databaseUsername) {
-        return {
-            status: 'failure',
-            message: `Cannot process sign-up because username is already present in database !`,
-        };
-    }
-
-    const hashedPassword = await hashPassword(password);
-    if (hashedPassword.status === 'failure') {
-        return hashedPassword;
-    }
-
-    await postUser(username, email, hashedPassword.value);
-
-    const user = await getUserByEmail(email);
-
-    const refreshToken = jwt.sign({ id: user.id }, process.env.REFRESH_TOKEN, {
-        expiresIn: '14d',
-    });
-
-    await updateRefreshTokenByUserId(refreshToken, user.id);
-
-    return {
-        status: 'success',
-        message: 'Process user registration successfully.',
-    };
 }
 
 async function loginUser(email, password) {
