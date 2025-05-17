@@ -3,6 +3,8 @@ import { pool } from '../builds/database.js';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import { JWT_CONFIGURATION } from '../constants/jwt-constants.js';
+import { ClientError } from '../utils/BaseError.js';
+import { HTTP_CLIENT_CODE } from '../constants/http-constants.js';
 
 const refreshRouter = express.Router();
 refreshRouter.use(cookieParser());
@@ -12,11 +14,15 @@ refreshRouter.get('/refresh-token', async (req, res, next) => {
         const refreshToken = req.cookies.refreshToken;
 
         if (!refreshToken) {
-            throw new Error(
-                'Cannot proceed because no refresh token has been provided !'
+            throw new ClientError(
+                `Missing precondition`,
+                `Cannot proceed because no refresh token has been provided !`,
+                HTTP_CLIENT_CODE.FAILED_PRECONDITION
             );
         }
 
+        // At which point doest an error is throw if the refresh token is not valid anymore ?
+        // => Would allow me to throw a FAILED_PRECONDITION http status code
         const decoded = jwt.verify(
             refreshToken,
             JWT_CONFIGURATION.REFRESH_TOKEN
@@ -30,8 +36,10 @@ refreshRouter.get('/refresh-token', async (req, res, next) => {
         client.release();
 
         if (result.rows.length === 0) {
-            throw new Error(
-                'Cannot proceed because no relevant user has been found !'
+            throw new ClientError(
+                `Resource not found`,
+                `Cannot process sign-up because no user has been found !`,
+                HTTP_CLIENT_CODE.NOT_FOUND
             );
         }
 
