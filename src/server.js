@@ -11,13 +11,22 @@ import cookieParser from 'cookie-parser';
 import authRouter from './routes/authRoutes.js';
 import { DB_CONFIGURATION } from './constants/database-constants.js';
 import { APP_CONFIGURATION } from './constants/application-constants.js';
+import cors from 'cors';
 
 // TO-CONSIDER: Add typescript without hot reload, and on docker, to prevent editor errors
 
 const app = express();
 
+const corsOptions = {
+    origin: 'http://localhost:5173',
+    methods: 'GET,POST,UPDATE,DELETE',
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+};
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cors(corsOptions));
 app.use(cookieParser());
 
 app.get('/api', (req, res) => {
