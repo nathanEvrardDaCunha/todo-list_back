@@ -22,6 +22,7 @@ Commons commit scope:
 -   auth: changes only made to authentication logics
 -   database: changes only made to database logics
 -   core: changes related to the critical and overall parts of the project
+-   "empty": small non important changes
 
 Customs commit scope:
 

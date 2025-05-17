@@ -40,7 +40,6 @@ async function establishDatabaseConnection() {
     }
 }
 
-// TO-DO: Sync tasks route logic to the tasks's table VARCHARs
 async function initializeDatabase() {
     let client;
     try {

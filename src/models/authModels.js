@@ -61,7 +61,6 @@ async function getUserByEmail(email) {
             'SELECT id, username, email, password, created_at, updated_at FROM users WHERE email = $1',
             [email]
         );
-        // What if it doesn't find any user ?
         return result.rows[0];
     } catch (error) {
         throw error;

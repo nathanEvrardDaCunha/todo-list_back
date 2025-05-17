@@ -43,7 +43,6 @@ refreshRouter.get('/refresh-token', async (req, res, next) => {
             );
         }
 
-        // Generate new access token
         const accessToken = jwt.sign(
             { id: result.rows[0].id },
             JWT_CONFIGURATION.ACCESS_TOKEN,
