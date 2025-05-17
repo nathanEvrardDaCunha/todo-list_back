@@ -7,8 +7,6 @@ import {
 
 const { Pool } = pkg;
 
-// TO-DO: Validate my environment properties are defined, else, create fallback values.
-
 const pool = new Pool({
     database: DB_CONFIGURATION.NAME,
     host: DB_CONFIGURATION.HOST,

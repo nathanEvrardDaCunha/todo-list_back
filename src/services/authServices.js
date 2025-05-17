@@ -11,6 +11,11 @@ import jwt from 'jsonwebtoken';
 import { DB_USER } from '../constants/database-constants.js';
 import { BCRYPT_CONFIGURATION } from '../constants/bcrypt-constants.js';
 import { JWT_CONFIGURATION } from '../constants/jwt-constants.js';
+import { ClientError, ServerError } from '../utils/BaseError.js';
+import {
+    HTTP_CLIENT_CODE,
+    HTTP_SERVER_CODE,
+} from '../constants/http-constants.js';
 
 const isUndefined = (value) => value === undefined;
 const isNotString = (value) => typeof value !== 'string';
@@ -27,8 +32,8 @@ const isStrongPassword = (value) =>
 // TO-CONSIDER: Add typescript without hot reload to avoid build problem ?
 // TO-CONSIDER: Add test for each functions ?
 // TO-CONSIDER: Move some functions into their respective, themed, files ?
-// validate Things made flexible by inserting specific function for specific value in it (e.g: isEmail in validateString to test email)
-// TO-DO: Validate my environment properties are defined, else, create fallback values.
+
+// TO-CONSIDER: Check to see if every http code is relevant ?
 
 async function isPasswordMatch(plainPassword, hashedPassword) {
     try {
@@ -38,27 +43,37 @@ async function isPasswordMatch(plainPassword, hashedPassword) {
     }
 }
 
-function modernStringValidation(value, valueName, minLength, maxLength) {
+function validateStringProperty(value, valueName, minLength, maxLength) {
     try {
         if (isUndefined(value)) {
-            throw new Error(`Cannot process undefined ${valueName} property !`);
+            throw new ClientError(
+                `Invalid property`,
+                `Cannot process undefined ${valueName} property !`,
+                HTTP_CLIENT_CODE.UNPROCESSABLE_CONTENT
+            );
         }
 
         if (isNotString(value)) {
-            throw new Error(
-                `Cannot process non-string ${valueName} property !`
+            throw new ClientError(
+                `Invalid property`,
+                `Cannot process non-string ${valueName} property !`,
+                HTTP_CLIENT_CODE.UNPROCESSABLE_CONTENT
             );
         }
 
         if (isShorterEqualThan(value.length, minLength)) {
-            throw new Error(
-                `Cannot process ${valueName} property shorter than ${minLength} characters !`
+            throw new ClientError(
+                `Invalid property`,
+                `Cannot process ${valueName} property shorter than ${minLength} characters !`,
+                HTTP_CLIENT_CODE.UNPROCESSABLE_CONTENT
             );
         }
 
         if (isLongerEqualThan(value.length, maxLength)) {
-            throw new Error(
-                `Cannot process ${valueName} property longer than ${maxLength} characters !`
+            throw new ClientError(
+                `Invalid property`,
+                `Cannot process ${valueName} property longer than ${maxLength} characters !`,
+                HTTP_CLIENT_CODE.UNPROCESSABLE_CONTENT
             );
         }
     } catch (error) {
@@ -68,7 +83,7 @@ function modernStringValidation(value, valueName, minLength, maxLength) {
 
 function validateUsername(username) {
     try {
-        modernStringValidation(
+        validateStringProperty(
             username,
             'username',
             DB_USER.MIN_USERNAME_LENGTH,
@@ -76,8 +91,10 @@ function validateUsername(username) {
         );
 
         if (!isUsernameValid(username)) {
-            throw new Error(
-                `Cannot process non-valid username ! Only letters, numbers and hyphen are allowed.`
+            throw new ClientError(
+                `Invalid property`,
+                `Cannot process non-valid username ! Only letters, numbers and hyphen are allowed.`,
+                HTTP_CLIENT_CODE.UNPROCESSABLE_CONTENT
             );
         }
     } catch (error) {
@@ -87,7 +104,7 @@ function validateUsername(username) {
 
 function validatePassword(password) {
     try {
-        modernStringValidation(
+        validateStringProperty(
             password,
             'password',
             DB_USER.MIN_PASSWORD_LENGTH,
@@ -95,8 +112,10 @@ function validatePassword(password) {
         );
 
         if (!isStrongPassword(password)) {
-            throw new Error(
-                `Cannot process weak password ! It should have one uppercase, lowercase, number, special character, and be at least 6 characters long.`
+            throw new ClientError(
+                `Invalid property`,
+                `Cannot process weak password ! It should have one uppercase, lowercase, number, special character, and be at least 6 characters long.`,
+                HTTP_CLIENT_CODE.UNPROCESSABLE_CONTENT
             );
         }
     } catch (error) {
@@ -106,7 +125,7 @@ function validatePassword(password) {
 
 function validateEmail(email) {
     try {
-        modernStringValidation(
+        validateStringProperty(
             email,
             'email',
             DB_USER.MIN_EMAIL_LENGTH,
@@ -114,7 +133,11 @@ function validateEmail(email) {
         );
 
         if (!isEmail(email)) {
-            throw new Error(`Cannot process non-standard email property !`);
+            throw new ClientError(
+                `Invalid property`,
+                `Cannot process non-standard email property !`,
+                HTTP_CLIENT_CODE.UNPROCESSABLE_CONTENT
+            );
         }
     } catch (error) {
         throw error;
@@ -140,15 +163,19 @@ async function registerUser(username, email, password) {
 
         const databaseEmail = await isEmailTaken(email);
         if (databaseEmail) {
-            throw new Error(
-                `Cannot process sign-up because email is already present in database !`
+            throw new ClientError(
+                `Conflicting property`,
+                `Cannot process sign-up because email is already present in database !`,
+                HTTP_CLIENT_CODE.CONFLICT
             );
         }
 
         const databaseUsername = await isUsernameTaken(username);
         if (databaseUsername) {
-            throw new Error(
-                `Cannot process sign-up because username is already present in database !`
+            throw new ClientError(
+                `Conflicting property`,
+                `Cannot process sign-up because username is already present in database !`,
+                HTTP_CLIENT_CODE.CONFLICT
             );
         }
 
@@ -159,8 +186,10 @@ async function registerUser(username, email, password) {
         const user = await getUserByEmail(email);
         // Maybe useless because we call postUser the line above ?
         if (!user) {
-            throw new Error(
-                `Cannot process sign-up because not user has been found !`
+            throw new ClientError(
+                `Resource not found`,
+                `Cannot process sign-up because no user has been found !`,
+                HTTP_CLIENT_CODE.NOT_FOUND
             );
         }
 
@@ -185,15 +214,19 @@ async function loginUser(email, password) {
 
         const user = await getUserByEmail(email);
         if (!user) {
-            throw new Error(
-                `Cannot process sign-in because not user has been found !`
+            throw new ClientError(
+                `Invalid Credentials`,
+                `Cannot process sign-in because of invalid credentials !`,
+                HTTP_CLIENT_CODE.UNAUTHORIZED
             );
         }
 
         const passwordMatch = await isPasswordMatch(password, user.password);
         if (!passwordMatch) {
-            throw new Error(
-                `Cannot process sign-in because of invalid credentials !`
+            throw new ClientError(
+                `Invalid Credentials`,
+                `Cannot process sign-in because of invalid credentials !`,
+                HTTP_CLIENT_CODE.UNAUTHORIZED
             );
         }
 
@@ -227,8 +260,10 @@ async function loginUser(email, password) {
 async function logoutUser(refreshToken) {
     try {
         if (!refreshToken) {
-            throw new Error(
-                `Cannot proceed because user is already logged out or never logged before !`
+            throw new ClientError(
+                `Authentication required`,
+                `Cannot proceed because user is already logged out or never logged before !`,
+                HTTP_CLIENT_CODE.UNAUTHORIZED
             );
         }
 

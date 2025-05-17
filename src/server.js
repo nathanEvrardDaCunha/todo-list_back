@@ -12,7 +12,6 @@ import authRouter from './routes/authRoutes.js';
 import { DB_CONFIGURATION } from './constants/database-constants.js';
 import { APP_CONFIGURATION } from './constants/application-constants.js';
 
-// TO-DO: Validate my environment properties are defined, else, create fallback values.
 // TO-CONSIDER: Add typescript without hot reload, and on docker, to prevent editor errors
 // TO-CONSIDER: Add relevant HTTP Status Code: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
 

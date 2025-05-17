@@ -10,6 +10,8 @@ import {
 // TO-CONSIDER: Add 'secure: true' for HTTPS for anything related to cookies ? (e.g: res.cookie / res.clearCookies ?)
 // TO-CONSIDER: Add 'sameSite: strict' for something for anything related to cookies ? (e.g: res.cookie / res.clearCookies ?)
 
+// TO-CONSIDER: Replace every res.status magic number by HTTP_CONSTANT ?
+
 async function postRegister(req, res, next) {
     try {
         const { username, email, password } = req.body;

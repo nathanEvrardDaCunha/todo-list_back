@@ -2,11 +2,10 @@
 // Make the filename, line and column work for more precise error information for debugging
 
 function errorHandler(err, req, res, next) {
-    res.status(500).json({
-        error: err.message,
-        filename: err.filename,
-        line: err.line,
-        column: err.colno,
+    res.status(err.httpCode).json({
+        name: err.name,
+        cause: err.cause,
+        stack: err.stack,
     });
 }
 
