@@ -12,6 +12,7 @@ import authRouter from './routes/authRoutes.js';
 import { DB_CONFIGURATION } from './constants/database-constants.js';
 import { APP_CONFIGURATION } from './constants/application-constants.js';
 import cors from 'cors';
+import taskRouter from './routes/taskRoutes.js';
 
 // TO-CONSIDER: Add typescript without hot reload, and on docker, to prevent editor errors
 
@@ -29,6 +30,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cors(corsOptions));
 app.use(cookieParser());
 
+// TO-DO: Handle non implemented route.
+
 app.get('/api', (req, res) => {
     res.status(200).json({ message: 'Default API route work fine.' });
 });
@@ -37,7 +40,10 @@ app.use('/api/auth', authRouter);
 
 // TO-CONSIDER: Also divide as router, controller... the refreshToken logic ?
 // => Or include it inside the authentication logic ?
-app.use('/token', refreshRouter);
+app.use('/api/token', refreshRouter);
+
+// TO-DO: Move back the "/api/task" below the tokenHandler middleware after the whole logic is implemented.
+app.use('/api/task', taskRouter);
 
 app.use(tokenHandler);
 
