@@ -38,6 +38,7 @@ async function postLogin(req, res, next) {
             status: `success`,
             message: `The user has been logged successfully.`,
             accessToken: loginResponse.accessToken,
+            userId: loginResponse.userId,
         });
     } catch (error) {
         next(error);

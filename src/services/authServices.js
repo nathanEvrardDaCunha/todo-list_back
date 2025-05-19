@@ -11,11 +11,8 @@ import jwt from 'jsonwebtoken';
 import { DB_USER } from '../constants/database-constants.js';
 import { BCRYPT_CONFIGURATION } from '../constants/bcrypt-constants.js';
 import { JWT_CONFIGURATION } from '../constants/jwt-constants.js';
-import { ClientError, ServerError } from '../utils/BaseError.js';
-import {
-    HTTP_CLIENT_CODE,
-    HTTP_SERVER_CODE,
-} from '../constants/http-constants.js';
+import { ClientError } from '../utils/BaseError.js';
+import { HTTP_CLIENT_CODE } from '../constants/http-constants.js';
 
 const isUndefined = (value) => value === undefined;
 const isNotString = (value) => typeof value !== 'string';
@@ -251,6 +248,7 @@ async function loginUser(email, password) {
         return {
             refreshToken: refreshToken,
             accessToken: accessToken,
+            userId: user.id,
         };
     } catch (error) {
         throw error;

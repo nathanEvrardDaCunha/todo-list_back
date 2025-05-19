@@ -61,6 +61,8 @@ async function initializeDatabase() {
                 user_id INT NOT NULL,
                 title VARCHAR(${DB_TASK.MAX_TITLE_LENGTH}) NOT NULL,
                 description VARCHAR(${DB_TASK.MAX_DESCRIPTION_LENGTH}) NULL,
+                project VARCHAR(${DB_TASK.MAX_PROJECT_LENGTH}) NULL,
+                deadline DATE NOT NULL,
                 completed BOOLEAN NOT NULL DEFAULT FALSE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

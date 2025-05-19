@@ -45,6 +45,8 @@ app.use('/api/token', refreshRouter);
 // TO-DO: Move back the "/api/task" below the tokenHandler middleware after the whole logic is implemented.
 app.use('/api/task', taskRouter);
 
+// BUG: Every not found page are dealt below the 'tokenHandler', so each time it has for unwanted authentication header
+
 app.use(tokenHandler);
 
 // TO-FIX: User can still use it after log out because access token is still valid for few minutes
