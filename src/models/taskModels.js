@@ -17,13 +17,9 @@ async function postTask(title, description, project, deadline, userId) {
     }
 }
 
-// update to only include range of time (BEfore Today-Today / In Two Week-One year later)
 async function getTasksFromUserId(userId, minDeadline, maxDeadline) {
     let client;
     try {
-        // Query need YYYY/DD/MM format instead of Date object ?
-
-        // If the max deadline is set to today, will it include the task of today or exclude them ?
         client = await pool.connect();
         const result = await client.query(
             `SELECT id, title, description, project, deadline, completed from tasks WHERE (user_id=$1) AND (deadline BETWEEN $2 AND $3)`,

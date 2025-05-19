@@ -18,8 +18,6 @@ const isProjectInvalid = (value) => !/^[A-Za-z\s]*$/.test(value);
 const isDateInvalid = (value) => isNaN(new Date(value)); //Should return a JS error by default if deadline can't become a Date ?
 const isNumberInvalid = (value) => isNaN(new Number(value));
 
-// is Deadline ?
-
 function validateStringProperty(value, valueName, minLength, maxLength) {
     try {
         if (isUndefined(value)) {
@@ -236,7 +234,6 @@ async function returnTodayTask(userId) {
         }
 
         const minDeadline = new Date('1990-01-01');
-        console.log(`minDeadline: ${minDeadline.toISOString()}`);
 
         const maxDeadline = new Date();
         maxDeadline.setHours(23, 59, 59, 999);
@@ -246,10 +243,6 @@ async function returnTodayTask(userId) {
         // maxDeadlineUTC.setUTCHours(23, 59, 59, 999);
         // console.log(`maxDeadline (UTC end of day): ${maxDeadlineUTC.toISOString()}`);
         // Use maxDeadlineUTC if that's the case. For this example, we'll use local server time.
-
-        console.log(
-            `maxDeadline (local end of day): ${maxDeadline.toISOString()}`
-        );
 
         const result = await getTasksFromUserId(
             numericUserId,
@@ -265,40 +258,5 @@ async function returnTodayTask(userId) {
         throw error;
     }
 }
-
-// async function returnTodayTask(userId) {
-//     try {
-//         validateUserId(userId);
-
-//         const newUserId = new Number(userId);
-
-//         const user = await getUserById(userId);
-//         if (!user) {
-//             throw new ClientError(
-//                 `Invalid Credentials`,
-//                 `Cannot process today task fetching because no user has been found !`,
-//                 HTTP_CLIENT_CODE.UNAUTHORIZED
-//             );
-//         }
-
-//         const minDeadline = new Date('1990-01-01');
-//         console.log(`minDeadline: ${minDeadline}`);
-
-//         const maxDeadline = new Date(Date.toISOString().split('T')); // Does this work ?
-//         console.log(`maxDeadline: ${maxDeadline}`);
-
-//         const result = await getTasksFromUserId(
-//             newUserId,
-//             minDeadline,
-//             maxDeadline
-//         );
-
-//         return {
-//             tasks: result,
-//         };
-//     } catch (error) {
-//         throw error;
-//     }
-// }
 
 export { createTask, returnTodayTask };
