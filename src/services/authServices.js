@@ -207,7 +207,13 @@ async function registerUser(username, email, password) {
 async function loginUser(email, password) {
     try {
         validateEmail(email);
-        validatePassword(password);
+
+        validateStringProperty(
+            password,
+            'password',
+            DB_USER.MIN_PASSWORD_LENGTH,
+            DB_USER.MAX_PASSWORD_LENGTH
+        );
 
         const user = await getUserByEmail(email);
         if (!user) {

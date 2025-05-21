@@ -31,6 +31,7 @@ app.use(cors(corsOptions));
 app.use(cookieParser());
 
 // TO-DO: Handle non implemented route.
+// TO-DO: Add not found route (either because of bad url or non implemented method) on the server
 
 app.get('/api', (req, res) => {
     res.status(200).json({ message: 'Default API route work fine.' });
