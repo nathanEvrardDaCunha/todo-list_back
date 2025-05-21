@@ -30,7 +30,8 @@ async function postTask(req, res, next) {
 
 async function getTodayTask(req, res, next) {
     try {
-        const { userId } = req.body;
+        const { userId } = req.query;
+
         const taskResponse = await returnTodayTask(userId);
 
         res.status(HTTP_SUCCESS_CODE.OK).json({

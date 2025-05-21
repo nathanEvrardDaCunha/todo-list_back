@@ -254,7 +254,6 @@ async function returnTodayTask(userId) {
             tasks: result,
         };
     } catch (error) {
-        console.error('Error in returnTodayTask:', error);
         throw error;
     }
 }
