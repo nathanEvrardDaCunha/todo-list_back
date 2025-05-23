@@ -3,6 +3,7 @@ import { JWT_CONFIGURATION } from '../constants/jwt-constants.js';
 
 function tokenHandler(req, res, next) {
     const authorizationHeader = req.headers['authorization'];
+
     if (!authorizationHeader) {
         return res.status(401).json({
             message:
@@ -10,15 +11,18 @@ function tokenHandler(req, res, next) {
         });
     }
 
-    const token = authorizationHeader.split(' ')[1];
+    const token = authorizationHeader;
 
     jwt.verify(token, JWT_CONFIGURATION.ACCESS_TOKEN, (err, decoded) => {
         if (err) {
             return res.status(403).json({
-                message: 'Cannot proceed because access token is invalid !',
+                message: 'Cannot proceed because access token is invalid!',
             });
         }
+
+        // Store the user ID from the token in the request object
         req.id = decoded.id;
+
         next();
     });
 }
