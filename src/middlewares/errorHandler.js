@@ -1,4 +1,5 @@
-import { ClientError, ServerError } from '../utils/BaseError.js';
+import { ClientError } from '../utils/errors/classes/ClientError.js';
+import { ServerError } from '../utils/errors/classes/ServerError.js';
 
 // TO-CONSIDER: Add a "advice" in my response to indicate to the users how he can fix his problem ?
 // E.g: "Missing Refresh Token" => "Please, sign-in to your personal account."

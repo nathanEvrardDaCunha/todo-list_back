@@ -6,17 +6,18 @@ import {
 } from './builds/database.js';
 import { pool } from './builds/database.js';
 import tokenHandler from './middlewares/tokenHandler.js';
-import refreshRouter from './routes/refreshRoutes.js';
+// import refreshRouter from './routes/refreshRoutes.js';
 import cookieParser from 'cookie-parser';
 import authRouter from './routes/authRoutes.js';
 import { DB_CONFIGURATION } from './constants/database-constants.js';
 import { APP_CONFIGURATION } from './constants/application-constants.js';
 import cors from 'cors';
-import taskRouter from './routes/taskRoutes.js';
-
-// TO-CONSIDER: Add typescript without hot reload, and on docker, to prevent editor errors
+// import taskRouter from './routes/taskRoutes.js';
 
 const app = express();
+
+// TO-CONSIDER: Add 'secure: true' for HTTPS for anything related to cookies ? (e.g: res.cookie / res.clearCookies ?)
+// TO-CONSIDER: Add 'sameSite: strict' for something for anything related to cookies ? (e.g: res.cookie / res.clearCookies ?)
 
 const corsOptions = {
     origin: 'http://localhost:5173',
@@ -41,10 +42,10 @@ app.use('/api/auth', authRouter);
 
 // TO-CONSIDER: Also divide as router, controller... the refreshToken logic ?
 // => Or include it inside the authentication logic ?
-app.use('/api/token', refreshRouter);
+// app.use('/api/token', refreshRouter);
 
 // TO-DO: Move back the "/api/task" below the tokenHandler middleware after the whole logic is implemented.
-app.use('/api/task', taskRouter);
+// app.use('/api/task', taskRouter);
 
 // BUG: Every not found page are dealt below the 'tokenHandler', so each time it has for unwanted authentication header
 
