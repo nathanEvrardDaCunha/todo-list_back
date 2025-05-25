@@ -12,7 +12,21 @@ import authRouter from './routes/authRoutes.js';
 import { DB_CONFIGURATION } from './constants/database-constants.js';
 import { APP_CONFIGURATION } from './constants/application-constants.js';
 import cors from 'cors';
-// import taskRouter from './routes/taskRoutes.js';
+import taskRouter from './routes/taskRoutes.js';
+
+//
+//
+//
+// Setup typescript (make it work with docker without hot reload)
+//
+// Test every functionalities
+//
+// Rewrite everything to typescript (type of param + type of output)
+//
+// Test every functionalities
+//
+//
+//
 
 const app = express();
 
@@ -45,7 +59,7 @@ app.use('/api/auth', authRouter);
 // app.use('/api/token', refreshRouter);
 
 // TO-DO: Move back the "/api/task" below the tokenHandler middleware after the whole logic is implemented.
-// app.use('/api/task', taskRouter);
+app.use('/api/task', taskRouter);
 
 // BUG: Every not found page are dealt below the 'tokenHandler', so each time it has for unwanted authentication header
 

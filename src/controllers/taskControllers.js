@@ -1,48 +1,87 @@
-// import { HTTP_SUCCESS_CODE } from '../constants/http-constants.js';
-// import { createTask, returnTodayTask } from '../services/taskServices.js';
+import {
+    createTaskService,
+    fetchTodayTaskService,
+} from '../services/task/taskServices.js';
+import { SuccessCreatedResponse } from '../utils/responses/classes/SuccessResponse.js';
 
-// async function postTask(req, res, next) {
-//     try {
-//         const { title, description, project, deadline, userId } = req.body;
-//         const taskResponse = await createTask(
-//             title,
-//             description,
-//             project,
-//             deadline,
-//             userId
-//         );
+/**
+ * Handle the HTTP request and response during task creation.
+ *
+ * @export
+ * @async
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ * @return {Promise<void>}
+ */
+export async function createTaskController(req, res, next) {
+    try {
+        const { title, description, project, deadline, accessToken } = req.body;
 
-//         res.status(HTTP_SUCCESS_CODE.CREATED).json({
-//             status: 'success',
-//             message: 'The new task has been created successfully.',
-//             temporary: {
-//                 title: taskResponse.title,
-//                 description: taskResponse.description,
-//                 project: taskResponse.project,
-//                 deadline: taskResponse.deadline,
-//                 userId: taskResponse.userId,
-//             },
-//         });
-//     } catch (error) {
-//         next(error);
-//     }
-// }
+        // const authorizationHeader = req.headers['authorization'];
+        // const accessToken = authorizationHeader.split(' ')[1];
 
-// async function getTodayTask(req, res, next) {
-//     try {
-//         const { userId } = req.query;
+        // Rename createTaskService
+        await createTaskService(
+            title,
+            description,
+            project,
+            deadline,
+            accessToken
+        );
 
-//         const taskResponse = await returnTodayTask(userId);
+        const response = new SuccessCreatedResponse(
+            'Created task successfully.',
+            null
+        );
 
-//         res.status(HTTP_SUCCESS_CODE.OK).json({
-//             status: 'success',
-//             message:
-//                 'The tasks related to a specific user have been recovered successfully.',
-//             tasks: taskResponse.tasks,
-//         });
-//     } catch (error) {
-//         next(error);
-//     }
-// }
+        // res.status(HTTP_SUCCESS_CODE.CREATED).json({
+        //     status: 'success',
+        //     message: 'The new task has been created successfully.',
+        //     temporary: {
+        //         title: taskResponse.title,
+        //         description: taskResponse.description,
+        //         project: taskResponse.project,
+        //         deadline: taskResponse.deadline,
+        //         userId: taskResponse.userId,
+        //     },
+        // });
 
-// export { postTask, getTodayTask };
+        res.status(response.httpCode).json(response.toJSON());
+    } catch (error) {
+        next(error);
+    }
+}
+
+/**
+ * Handle the HTTP request and response during today tasks fetching.
+ *
+ * @export
+ * @async
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ * @return {Promise<void>}
+ */
+export async function fetTodayTaskController(req, res, next) {
+    try {
+        const { accessToken } = req.query;
+
+        const result = await fetchTodayTaskService(accessToken);
+
+        const response = new SuccessCreatedResponse(
+            'Fetch today tasks successfully.',
+            result
+        );
+
+        res.status(response.httpCode).json(response.toJSON());
+    } catch (error) {
+        next(error);
+    }
+}
+
+// ------------------------------------
+//
+// Fetch-Today work => Finish the many modifications before going to Create-Task
+//
+// ------------------------------------

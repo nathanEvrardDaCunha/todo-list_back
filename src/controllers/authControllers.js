@@ -16,6 +16,7 @@ import {
  * Handle the HTTP request and response during user creation.
  *
  * @export
+ * @async
  * @param {*} req
  * @param {*} res
  * @param {*} next
@@ -28,7 +29,7 @@ export async function registerController(req, res, next) {
         await registerService(username, email, password);
 
         const response = new SuccessCreatedResponse(
-            'User created successfully.',
+            'Create user successfully.',
             null
         );
 
@@ -42,6 +43,7 @@ export async function registerController(req, res, next) {
  * Handle the HTTP request and response during user authentication.
  *
  * @export
+ * @async
  * @param {*} req
  * @param {*} res
  * @param {*} next
@@ -54,7 +56,7 @@ export async function loginController(req, res, next) {
         const result = await loginService(email, password);
 
         const response = new SuccessOkResponse(
-            'User authenticated successfully.',
+            'Authenticate user successfully.',
             {
                 accessToken: result.accessToken,
             }
@@ -75,6 +77,7 @@ export async function loginController(req, res, next) {
  * Handle the HTTP request and response during user disconnection.
  *
  * @export
+ * @async
  * @param {*} req
  * @param {*} res
  * @param {*} next
@@ -87,7 +90,7 @@ export async function logoutController(req, res, next) {
         await logoutService(refreshToken);
 
         const response = new SuccessNoContentResponse(
-            'User disconnected successfully.'
+            'Disconnect user successfully.'
         );
 
         res.clearCookie('refreshToken', {

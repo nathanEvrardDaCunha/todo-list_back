@@ -122,9 +122,7 @@ export function validateEmail(email) {
         );
 
         if (!isEmailValid(email)) {
-            throw new ClientUnprocessableContentError(
-                'Email possess a non-standard format !'
-            );
+            throw new ClientUnprocessableContentError('Email is invalid !');
         }
     } catch (error) {
         console.error(error);
@@ -149,9 +147,7 @@ export function validateUsername(username) {
         );
 
         if (!isUsernameValid(username)) {
-            throw new ClientUnprocessableContentError(
-                'Username is not valid !'
-            );
+            throw new ClientUnprocessableContentError('Username is invalid !');
         }
     } catch (error) {
         console.error(error);
@@ -176,9 +172,7 @@ export function validatePassword(password) {
         );
 
         if (!isPasswordValid(password)) {
-            throw new ClientUnprocessableContentError(
-                'Password is not strong enough !'
-            );
+            throw new ClientUnprocessableContentError('Password is invalid !');
         }
     } catch (error) {
         console.error(error);
