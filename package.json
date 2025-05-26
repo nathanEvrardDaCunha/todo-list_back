@@ -6,7 +6,10 @@
     "type": "module",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "dev": "nodemon src/server.js"
+        "dev": "nodemon src/server.ts",
+        "build": "tsc",
+        "start": "node dist/server.js",
+        "clean": "rm -rf dist"
     },
     "repository": {
         "type": "git",
@@ -20,7 +23,16 @@
     },
     "homepage": "https://github.com/nathanEvrardDaCunha/todo-list_back#readme",
     "devDependencies": {
-        "nodemon": "^3.1.10"
+        "@types/bcrypt": "^5.0.2",
+        "@types/cookie-parser": "^1.4.8",
+        "@types/cors": "^2.8.18",
+        "@types/express": "^5.0.2",
+        "@types/jsonwebtoken": "^9.0.9",
+        "@types/node": "^22.15.21",
+        "@types/pg": "^8.15.2",
+        "nodemon": "^3.1.10",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.8.3"
     },
     "dependencies": {
         "bcrypt": "^5.1.1",

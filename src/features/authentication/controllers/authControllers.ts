@@ -1,0 +1,83 @@
+import { Request, Response, NextFunction } from 'express';
+import { loginService, logoutService, registerService } from '../services/authServices.js';
+import { CreatedResponse, NoContentResponse, OkResponse } from '../../../utils/responses/SuccessResponse.js';
+
+interface RegisterRequestBody {
+    username: any;
+    email: any;
+    password: any;
+}
+
+interface LoginRequestBody {
+    email: any;
+    password: any;
+}
+
+//
+// Test to see if there is an error if username is not a string
+//
+
+export async function registerController(
+    req: Request<{}, {}, RegisterRequestBody>,
+    res: Response,
+    next: NextFunction
+): Promise<void> {
+    try {
+        const { username, email, password } = req.body;
+
+        await registerService(username, email, password);
+
+        const response = new CreatedResponse('Create user successfully.', null);
+
+        res.status(response.httpCode).json(response.toJSON());
+    } catch (error: unknown) {
+        console.error(error);
+        next(error);
+    }
+}
+
+export async function loginController(
+    req: Request<{}, {}, LoginRequestBody>,
+    res: Response,
+    next: NextFunction
+): Promise<void> {
+    try {
+        const { email, password } = req.body;
+
+        const result = await loginService(email, password);
+
+        const response = new OkResponse('Authenticate user successfully.', {
+            accessToken: result.accessToken,
+        });
+
+        res.cookie('refreshToken', result.refreshToken, {
+            httpOnly: true,
+            maxAge: 14 * 24 * 60 * 60 * 1000,
+        });
+
+        res.status(response.httpCode).json(response.toJSON());
+    } catch (error: unknown) {
+        console.error(error);
+        next(error);
+    }
+}
+
+export async function logoutController(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+        const { refreshToken } = req.cookies;
+
+        await logoutService(refreshToken);
+
+        const response = new NoContentResponse('Disconnect user successfully.');
+
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            maxAge: 0,
+        });
+
+        res.status(response.httpCode).json(response.toJSON());
+    } catch (error: unknown) {
+        console.error(error);
+        next(error);
+    }
+}

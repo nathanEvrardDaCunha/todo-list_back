@@ -1,0 +1,108 @@
+import { PoolClient } from 'pg';
+import { pool } from '../builds/database.js';
+
+export async function isUsernameUnavailable(username: string): Promise<boolean> {
+    let client: PoolClient | undefined;
+    try {
+        client = await pool.connect();
+        const result = await client.query(`SELECT username FROM users WHERE username=$1`, [username]);
+        return result.rows.length > 0;
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
+}
+
+export async function isEmailUnavailable(email: string): Promise<boolean> {
+    let client: PoolClient | undefined;
+    try {
+        client = await pool.connect();
+        const result = await client.query(`SELECT email FROM users WHERE email=$1`, [email]);
+        return result.rows.length > 0;
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
+}
+
+export async function createUser(username: string, email: string, hashedPassword: string): Promise<void> {
+    let client: PoolClient | undefined;
+    try {
+        client = await pool.connect();
+        await client.query(`INSERT INTO users (username, email, password) VALUES ($1, $2, $3)`, [
+            username,
+            email,
+            hashedPassword,
+        ]);
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
+}
+
+interface UserByEmailResult {
+    id: number;
+    username: string;
+    email: string;
+    password: string;
+    created_at: Date;
+    updated_at: Date;
+}
+
+// Problem ?
+export async function fetchUserByEmail(email: string): Promise<UserByEmailResult | false> {
+    let client: PoolClient | undefined;
+    try {
+        client = await pool.connect();
+        const result = await client.query(
+            'SELECT id, username, email, password, created_at, updated_at FROM users WHERE email = $1',
+            [email]
+        );
+
+        if (result.rows.length === 0) {
+            return false;
+        }
+
+        const formattedResult: UserByEmailResult = {
+            id: result.rows[0].id,
+            username: result.rows[0].username,
+            email: result.rows[0].email,
+            password: result.rows[0].password,
+            created_at: result.rows[0].created_at,
+            updated_at: result.rows[0].updated_at,
+        };
+
+        return formattedResult;
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
+}
+
+export async function setRefreshTokenById(refreshToken: string, id: number): Promise<void> {
+    let client: PoolClient | undefined;
+    try {
+        client = await pool.connect();
+        await client.query(`UPDATE users SET refresh_token = $1 WHERE id = $2`, [refreshToken, id]);
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
+}
+
+export async function setRefreshTokenToNull(refreshToken: string): Promise<void> {
+    let client: PoolClient | undefined;
+    try {
+        client = await pool.connect();
+        await client.query('UPDATE users SET refresh_token = $1 WHERE refresh_token = $2', [null, refreshToken]);
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
+}
