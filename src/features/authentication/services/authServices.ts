@@ -14,11 +14,19 @@ import {
     isUsernameUnavailable,
     setRefreshTokenById,
     setRefreshTokenToNull,
-} from '../../../models/userModels.js';
-import { ConflictError, NotFoundError, UnauthorizedError } from '../../../utils/errors/ClientError.js';
+} from '../../../models/user/userModels.js';
+import {
+    ConflictError,
+    NotFoundError,
+    UnauthorizedError,
+} from '../../../utils/errors/ClientError.js';
 import { validateRefreshToken } from '../../../utils/validation/genericValidation.js';
 
-export async function registerService(username: any, email: any, password: any): Promise<void> {
+export async function registerService(
+    username: any,
+    email: any,
+    password: any
+): Promise<void> {
     const newUsername = validateUsername(username);
     const newEmail = validateEmail(email);
     const newPassword = validatePassword(password);
@@ -54,7 +62,10 @@ interface LoginResult {
     accessToken: string;
 }
 
-export async function loginService(email: any, password: any): Promise<LoginResult> {
+export async function loginService(
+    email: any,
+    password: any
+): Promise<LoginResult> {
     const newEmail = validateEmail(email);
     const newPassword = validatePassword(password);
 
@@ -86,6 +97,7 @@ export async function loginService(email: any, password: any): Promise<LoginResu
 }
 
 export async function logoutService(refreshToken: any): Promise<void> {
+    // Might be useless because the validateRefreshToken already check if the value is nullish
     if (!refreshToken) {
         throw new UnauthorizedError('Necessary token not found !');
     }

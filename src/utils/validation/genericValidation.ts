@@ -38,7 +38,12 @@ export function isArray(value: unknown): value is unknown[] {
 }
 
 export function isObject(value: unknown): value is Record<string, unknown> {
-    return value !== null && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date);
+    return (
+        value !== null &&
+        typeof value === 'object' &&
+        !Array.isArray(value) &&
+        !(value instanceof Date)
+    );
 }
 
 // ============ STRING VALIDATION ============
@@ -137,7 +142,9 @@ export function isEmptyObject(value: Record<string, unknown>): boolean {
     return Object.keys(value).length === 0;
 }
 
-export function isSinglePropertyObject(value: Record<string, unknown>): boolean {
+export function isSinglePropertyObject(
+    value: Record<string, unknown>
+): boolean {
     return Object.keys(value).length === 1;
 }
 
@@ -173,7 +180,12 @@ export function isDateValid(value: unknown): boolean {
 
 // ============ ADVANCED VALIDATION ============
 
-export function validateStringProperty(value: unknown, name: string, minSize: number, maxSize: number): string {
+export function validateStringProperty(
+    value: unknown,
+    name: string,
+    minSize: number,
+    maxSize: number
+): string {
     if (isNullish(value)) {
         throw new UnprocessableContentError(`${name} is undefined or null !`);
     }
@@ -184,10 +196,14 @@ export function validateStringProperty(value: unknown, name: string, minSize: nu
         throw new UnprocessableContentError(`${name} is empty !`);
     }
     if (isShorterThan(value, minSize)) {
-        throw new UnprocessableContentError(`${name} should be longer than ${minSize} characters !`);
+        throw new UnprocessableContentError(
+            `${name} should be longer than ${minSize} characters !`
+        );
     }
     if (isLongerThan(value, maxSize)) {
-        throw new UnprocessableContentError(`${name} should be shorter than ${maxSize} characters !`);
+        throw new UnprocessableContentError(
+            `${name} should be shorter than ${maxSize} characters !`
+        );
     }
     return value;
 }
@@ -196,6 +212,16 @@ export function validateRefreshToken(refreshToken: unknown): string {
     const result = validateStringProperty(
         refreshToken,
         'refreshToken',
+        DB_USER.MIN_REFRESH_TOKEN_LENGTH,
+        DB_USER.MAX_REFRESH_TOKEN_LENGTH
+    );
+    return result;
+}
+
+export function validateAccessToken(accessToken: unknown): string {
+    const result = validateStringProperty(
+        accessToken,
+        'accessToken',
         DB_USER.MIN_REFRESH_TOKEN_LENGTH,
         DB_USER.MAX_REFRESH_TOKEN_LENGTH
     );

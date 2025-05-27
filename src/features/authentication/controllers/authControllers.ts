@@ -1,6 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
-import { loginService, logoutService, registerService } from '../services/authServices.js';
-import { CreatedResponse, OkResponse } from '../../../utils/responses/SuccessResponse.js';
+import {
+    loginService,
+    logoutService,
+    registerService,
+} from '../services/authServices.js';
+import {
+    CreatedResponse,
+    OkResponse,
+} from '../../../utils/responses/SuccessResponse.js';
 
 interface RegisterRequestBody {
     username: any;
@@ -8,13 +15,8 @@ interface RegisterRequestBody {
     password: any;
 }
 
-interface LoginRequestBody {
-    email: any;
-    password: any;
-}
-
 export async function registerController(
-    req: Request<{}, {}, RegisterRequestBody>,
+    req: Request<{}, {}, RegisterRequestBody, {}>,
     res: Response,
     next: NextFunction
 ): Promise<void> {
@@ -32,8 +34,13 @@ export async function registerController(
     }
 }
 
+interface LoginRequestBody {
+    email: any;
+    password: any;
+}
+
 export async function loginController(
-    req: Request<{}, {}, LoginRequestBody>,
+    req: Request<{}, {}, LoginRequestBody, {}>,
     res: Response,
     next: NextFunction
 ): Promise<void> {
@@ -58,13 +65,20 @@ export async function loginController(
     }
 }
 
-export async function logoutController(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function logoutController(
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> {
     try {
         const { refreshToken } = req.cookies;
 
         await logoutService(refreshToken);
 
-        const response = new OkResponse('Authenticate user successfully.', null);
+        const response = new OkResponse(
+            'Authenticate user successfully.',
+            null
+        );
 
         res.clearCookie('refreshToken', {
             httpOnly: true,
