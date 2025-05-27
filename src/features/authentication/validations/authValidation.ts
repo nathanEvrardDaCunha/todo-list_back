@@ -3,13 +3,9 @@ import { BCRYPT_CONFIG } from '../constants/authConstants.js';
 import { UnprocessableContentError } from '../../../utils/errors/ClientError.js';
 import {
     isEmailValid,
-    isLongerThan,
-    isNullish,
     isPasswordValid,
-    isShorterThan,
-    isString,
     isUsernameValid,
-    isWhitespaceString,
+    validateStringProperty,
 } from '../../../utils/validation/genericValidation.js';
 import { DB_USER } from '../../../builds/databaseConstants.js';
 
@@ -19,25 +15,6 @@ export async function isPasswordMatch(password: string, hashedPassword: string):
 
 export async function hashPassword(password: string): Promise<string> {
     return await bcrypt.hash(password, BCRYPT_CONFIG.HASH_ROUND);
-}
-
-function validateStringProperty(value: unknown, name: string, minSize: number, maxSize: number): string {
-    if (isNullish(value)) {
-        throw new UnprocessableContentError(`${name} is undefined or null !`);
-    }
-    if (!isString(value)) {
-        throw new UnprocessableContentError(`${name} is not of type string !`);
-    }
-    if (isWhitespaceString(value)) {
-        throw new UnprocessableContentError(`${name} is empty !`);
-    }
-    if (isShorterThan(value, minSize)) {
-        throw new UnprocessableContentError(`${name} should be longer than ${minSize} characters !`);
-    }
-    if (isLongerThan(value, maxSize)) {
-        throw new UnprocessableContentError(`${name} should be shorter than ${maxSize} characters !`);
-    }
-    return value;
 }
 
 export function validateEmail(email: unknown): string {
@@ -71,15 +48,5 @@ export function validatePassword(password: unknown): string {
     if (!isPasswordValid(result)) {
         throw new UnprocessableContentError('Password is invalid !');
     }
-    return result;
-}
-
-export function validateRefreshToken(refreshToken: unknown): string {
-    const result = validateStringProperty(
-        refreshToken,
-        'refreshToken',
-        DB_USER.MIN_REFRESH_TOKEN_LENGTH,
-        DB_USER.MAX_REFRESH_TOKEN_LENGTH
-    );
     return result;
 }

@@ -5,7 +5,6 @@ import {
     validateEmail,
     validatePassword,
     isPasswordMatch,
-    validateRefreshToken,
 } from '../validations/authValidation.js';
 import { JWT_CONFIG } from '../../../constants/jwtConstants.js';
 import {
@@ -17,6 +16,7 @@ import {
     setRefreshTokenToNull,
 } from '../../../models/userModels.js';
 import { ConflictError, NotFoundError, UnauthorizedError } from '../../../utils/errors/ClientError.js';
+import { validateRefreshToken } from '../../../utils/validation/genericValidation.js';
 
 export async function registerService(username: any, email: any, password: any): Promise<void> {
     const newUsername = validateUsername(username);
@@ -85,7 +85,6 @@ export async function loginService(email: any, password: any): Promise<LoginResu
     };
 }
 
-// Problems ?
 export async function logoutService(refreshToken: any): Promise<void> {
     if (!refreshToken) {
         throw new UnauthorizedError('Necessary token not found !');

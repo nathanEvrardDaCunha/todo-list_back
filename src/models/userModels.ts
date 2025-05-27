@@ -43,7 +43,7 @@ export async function createUser(username: string, email: string, hashedPassword
     }
 }
 
-interface UserByEmailResult {
+interface FetchUserResult {
     id: number;
     username: string;
     email: string;
@@ -52,8 +52,7 @@ interface UserByEmailResult {
     updated_at: Date;
 }
 
-// Problem ?
-export async function fetchUserByEmail(email: string): Promise<UserByEmailResult | false> {
+export async function fetchUserByEmail(email: string): Promise<FetchUserResult | false> {
     let client: PoolClient | undefined;
     try {
         client = await pool.connect();
@@ -66,7 +65,37 @@ export async function fetchUserByEmail(email: string): Promise<UserByEmailResult
             return false;
         }
 
-        const formattedResult: UserByEmailResult = {
+        const formattedResult: FetchUserResult = {
+            id: result.rows[0].id,
+            username: result.rows[0].username,
+            email: result.rows[0].email,
+            password: result.rows[0].password,
+            created_at: result.rows[0].created_at,
+            updated_at: result.rows[0].updated_at,
+        };
+
+        return formattedResult;
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
+}
+
+export async function fetchUserById(id: number): Promise<FetchUserResult | false> {
+    let client: PoolClient | undefined;
+    try {
+        client = await pool.connect();
+        const result = await client.query(
+            'SELECT id, username, email, password, created_at, updated_at FROM users WHERE id = $1',
+            [id]
+        );
+
+        if (result.rows.length === 0) {
+            return false;
+        }
+
+        const formattedResult: FetchUserResult = {
             id: result.rows[0].id,
             username: result.rows[0].username,
             email: result.rows[0].email,

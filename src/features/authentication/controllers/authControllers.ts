@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { loginService, logoutService, registerService } from '../services/authServices.js';
-import { CreatedResponse, NoContentResponse, OkResponse } from '../../../utils/responses/SuccessResponse.js';
+import { CreatedResponse, OkResponse } from '../../../utils/responses/SuccessResponse.js';
 
 interface RegisterRequestBody {
     username: any;
@@ -12,10 +12,6 @@ interface LoginRequestBody {
     email: any;
     password: any;
 }
-
-//
-// Test to see if there is an error if username is not a string
-//
 
 export async function registerController(
     req: Request<{}, {}, RegisterRequestBody>,
@@ -68,7 +64,7 @@ export async function logoutController(req: Request, res: Response, next: NextFu
 
         await logoutService(refreshToken);
 
-        const response = new NoContentResponse('Disconnect user successfully.');
+        const response = new OkResponse('Authenticate user successfully.', null);
 
         res.clearCookie('refreshToken', {
             httpOnly: true,

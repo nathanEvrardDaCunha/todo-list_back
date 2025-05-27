@@ -1,3 +1,6 @@
+import { DB_USER } from '../../builds/databaseConstants.js';
+import { UnprocessableContentError } from '../errors/ClientError.js';
+
 // ============ NULLISH VALIDATION ============
 
 export function isUndefined(value: unknown): value is undefined {
@@ -166,4 +169,35 @@ export function isNumberValid(value: unknown): boolean {
 export function isDateValid(value: unknown): boolean {
     const date = new Date(value as string | number | Date);
     return date instanceof Date && !Number.isNaN(date.getTime());
+}
+
+// ============ ADVANCED VALIDATION ============
+
+export function validateStringProperty(value: unknown, name: string, minSize: number, maxSize: number): string {
+    if (isNullish(value)) {
+        throw new UnprocessableContentError(`${name} is undefined or null !`);
+    }
+    if (!isString(value)) {
+        throw new UnprocessableContentError(`${name} is not of type string !`);
+    }
+    if (isWhitespaceString(value)) {
+        throw new UnprocessableContentError(`${name} is empty !`);
+    }
+    if (isShorterThan(value, minSize)) {
+        throw new UnprocessableContentError(`${name} should be longer than ${minSize} characters !`);
+    }
+    if (isLongerThan(value, maxSize)) {
+        throw new UnprocessableContentError(`${name} should be shorter than ${maxSize} characters !`);
+    }
+    return value;
+}
+
+export function validateRefreshToken(refreshToken: unknown): string {
+    const result = validateStringProperty(
+        refreshToken,
+        'refreshToken',
+        DB_USER.MIN_REFRESH_TOKEN_LENGTH,
+        DB_USER.MAX_REFRESH_TOKEN_LENGTH
+    );
+    return result;
 }

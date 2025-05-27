@@ -7,12 +7,11 @@ import { APP_CONFIG } from './serverConstants.js';
 import { DB_CONFIG } from './builds/databaseConstants.js';
 import errorHandler from './middlewares/errorHandlers.js';
 import authRouter from './features/authentication/routes/authRoutes.js';
+import tokenRouter from './features/tokens/routes/tokenRoutes.js';
 
 dotenv.config();
 
 const app: Application = express();
-
-// =============== MIDDLEWARE =============== //
 
 interface CorsOption {
     origin: string;
@@ -32,20 +31,15 @@ app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
 
-// =============== ROUTE =============== //
-
 app.use('/api/auth', authRouter);
 
-// app.use('/api/token', refreshRouter);
+// Can only test how effective it is when "tokenHandler" and "api/task" are reimplemented.
+app.use('/api/token', tokenRouter);
 
 // app.use(tokenHandler);
 // app.use('/api/task', taskRouter);
 
-// =============== ERROR =============== //
-
 app.use(errorHandler);
-
-// =============== SERVER =============== //
 
 async function startServer(): Promise<void> {
     try {

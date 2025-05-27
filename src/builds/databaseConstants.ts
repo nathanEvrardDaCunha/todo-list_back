@@ -2,7 +2,6 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Values are 'string' or the 'real' value ?
 export const DB_CONFIG = {
     NAME: process.env.DATABASE_NAME || 'todolist',
     HOST: process.env.DATABASE_HOST || 'db',
