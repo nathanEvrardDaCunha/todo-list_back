@@ -9,6 +9,7 @@ import errorHandler from './middlewares/errorHandlers.js';
 import authRouter from './features/authentication/routes/authRoutes.js';
 import tokenRouter from './features/tokens/routes/tokenRoutes.js';
 import taskRouter from './features/tasks/routes/taskRoutes.js';
+import { tokenHandler } from './middlewares/tokenHandler.js';
 
 dotenv.config();
 
@@ -34,14 +35,11 @@ app.use(express.json());
 
 // IF refresh token is expired (and not access token) => indicate to user to /login
 
-// WHEN I reimplement my tokenHandler middler, ask myself "do I also check if the X is valid in all my service ?" and "is this redundant ?" and "should I delete them ?"
-
 app.use('/api/auth', authRouter);
 
-// Can only test how effective it is when "tokenHandler" and "api/task" are reimplemented.
 app.use('/api/token', tokenRouter);
 
-// app.use(tokenHandler);
+app.use(tokenHandler);
 app.use('/api/task', taskRouter);
 
 app.use(errorHandler);

@@ -97,11 +97,6 @@ export async function loginService(
 }
 
 export async function logoutService(refreshToken: any): Promise<void> {
-    // Might be useless because the validateRefreshToken already check if the value is nullish
-    if (!refreshToken) {
-        throw new UnauthorizedError('Necessary token not found !');
-    }
-
     const newRefreshToken = validateRefreshToken(refreshToken);
 
     await setRefreshTokenToNull(newRefreshToken);

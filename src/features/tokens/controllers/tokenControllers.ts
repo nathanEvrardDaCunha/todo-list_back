@@ -19,7 +19,6 @@ export async function refreshTokenController(
 
         res.status(response.httpCode).json(response.toJSON());
     } catch (error: unknown) {
-        console.error(error);
         next(error);
     }
 }

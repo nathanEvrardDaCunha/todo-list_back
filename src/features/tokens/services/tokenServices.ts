@@ -47,7 +47,6 @@ export async function refreshTokenService(refreshToken: any): Promise<string> {
         throw new NotFoundError('User has not been found in database !');
     }
 
-    // Change back to 5m when testing is done.
     const accessToken = jwt.sign({ id: user.id }, JWT_CONFIG.ACCESS_TOKEN, {
         expiresIn: '5m',
     });

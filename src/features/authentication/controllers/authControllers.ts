@@ -9,14 +9,8 @@ import {
     OkResponse,
 } from '../../../utils/responses/SuccessResponse.js';
 
-interface RegisterRequestBody {
-    username: any;
-    email: any;
-    password: any;
-}
-
 export async function registerController(
-    req: Request<{}, {}, RegisterRequestBody, {}>,
+    req: Request,
     res: Response,
     next: NextFunction
 ): Promise<void> {
@@ -29,18 +23,12 @@ export async function registerController(
 
         res.status(response.httpCode).json(response.toJSON());
     } catch (error: unknown) {
-        console.error(error);
         next(error);
     }
 }
 
-interface LoginRequestBody {
-    email: any;
-    password: any;
-}
-
 export async function loginController(
-    req: Request<{}, {}, LoginRequestBody, {}>,
+    req: Request,
     res: Response,
     next: NextFunction
 ): Promise<void> {
@@ -60,7 +48,6 @@ export async function loginController(
 
         res.status(response.httpCode).json(response.toJSON());
     } catch (error: unknown) {
-        console.error(error);
         next(error);
     }
 }
@@ -87,7 +74,6 @@ export async function logoutController(
 
         res.status(response.httpCode).json(response.toJSON());
     } catch (error: unknown) {
-        console.error(error);
         next(error);
     }
 }
