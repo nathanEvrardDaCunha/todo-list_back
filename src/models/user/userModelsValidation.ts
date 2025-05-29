@@ -15,7 +15,6 @@ export interface UserDB {
 }
 
 function validateIsNumber(value: any, valueName: string): number {
-    // Server Error because it come from Database
     if (!isNumber(value)) {
         throw new UnprocessableContentError(
             `${valueName} is not of type number !`
@@ -25,7 +24,6 @@ function validateIsNumber(value: any, valueName: string): number {
 }
 
 function validateIsString(value: any, valueName: string): string {
-    // Server Error because it come from Database
     if (!isString(value)) {
         throw new UnprocessableContentError(
             `${valueName} is not of type string !`
@@ -35,7 +33,6 @@ function validateIsString(value: any, valueName: string): string {
 }
 
 function validateIsDate(value: any, valueName: string): Date {
-    // Server Error because it come from Database
     if (!isDate(value)) {
         throw new UnprocessableContentError(
             `${valueName} is not of type Date !`

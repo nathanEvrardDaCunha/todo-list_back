@@ -36,7 +36,6 @@ export async function fetchUserTaskInDateRange(
             [id, minDeadline, maxDeadline]
         );
 
-        // Will there be an error if "project" or "description" are null ?
         const tasks = result.rows.map((row) => {
             const task: TaskDB = validateTaskDB(
                 row.id,

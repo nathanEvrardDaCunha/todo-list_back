@@ -5,6 +5,8 @@ import {
     isDescriptionValid,
     isProjectValid,
     isTitleValid,
+    isWhitespaceString,
+    validatePossiblyEmptyStringProperty,
     validateStringProperty,
 } from '../../../utils/validation/genericValidation.js';
 
@@ -22,27 +24,24 @@ export function validateTitle(title: unknown): string {
 }
 
 export function validateDescription(description: unknown): string {
-    const result = validateStringProperty(
+    const result = validatePossiblyEmptyStringProperty(
         description,
-        'Description',
-        DB_TASK.MIN_DESCRIPTION_LENGTH,
-        DB_TASK.MAX_DESCRIPTION_LENGTH
+        'Description'
     );
-    if (!isDescriptionValid(result)) {
-        throw new UnprocessableContentError('Description is invalid !');
+    if (!isWhitespaceString(result)) {
+        if (!isDescriptionValid(result)) {
+            throw new UnprocessableContentError('Description is invalid !');
+        }
     }
     return result;
 }
 
 export function validateProject(project: unknown): string {
-    const result = validateStringProperty(
-        project,
-        'Project',
-        DB_TASK.MIN_PROJECT_LENGTH,
-        DB_TASK.MAX_PROJECT_LENGTH
-    );
-    if (!isProjectValid(result)) {
-        throw new UnprocessableContentError('Project is invalid !');
+    const result = validatePossiblyEmptyStringProperty(project, 'Project');
+    if (!isWhitespaceString(result)) {
+        if (!isProjectValid(result)) {
+            throw new UnprocessableContentError('Project is invalid !');
+        }
     }
     return result;
 }

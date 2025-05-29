@@ -208,6 +208,20 @@ export function validateStringProperty(
     return value;
 }
 
+export function validatePossiblyEmptyStringProperty(
+    value: unknown,
+    name: string
+): string {
+    if (isNullish(value)) {
+        throw new UnprocessableContentError(`${name} is undefined or null !`);
+    }
+    if (!isString(value)) {
+        throw new UnprocessableContentError(`${name} is not of type string !`);
+    }
+
+    return value;
+}
+
 export function validateRefreshToken(refreshToken: unknown): string {
     const result = validateStringProperty(
         refreshToken,

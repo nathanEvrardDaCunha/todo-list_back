@@ -19,8 +19,6 @@ export async function refreshTokenService(refreshToken: any): Promise<string> {
 
     const newRefreshToken = validateRefreshToken(refreshToken);
 
-    // If this work, I'll need to add it to other jwt usage case
-    // => It work, time to make the shift I guess
     let decoded: string | jwt.JwtPayload;
     try {
         decoded = jwt.verify(newRefreshToken, JWT_CONFIG.REFRESH_TOKEN);
