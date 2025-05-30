@@ -2,6 +2,7 @@ import {
     completeTask,
     createTask,
     deleteTask,
+    fetchTaskById,
     fetchUserTaskInDateRange,
 } from '../../../models/task/taskModels.js';
 import { TaskDB } from '../../../models/task/taskModelsValidation.js';
@@ -77,16 +78,24 @@ export async function fetchTodayTasksService(
     return tasks;
 }
 
-// Check if task exist ?
 export async function completeTaskService(taskId: string) {
     const newTaskId = validateTaskId(taskId);
+
+    const task = await fetchTaskById(newTaskId);
+    if (!task) {
+        throw new NotFoundError('Task has not been found in database !');
+    }
 
     await completeTask(newTaskId);
 }
 
-// Check if task exist ?
 export async function deleteTaskService(taskId: string) {
     const newTaskId = validateTaskId(taskId);
+
+    const task = await fetchTaskById(newTaskId);
+    if (!task) {
+        throw new NotFoundError('Task has not been found in database !');
+    }
 
     await deleteTask(newTaskId);
 }

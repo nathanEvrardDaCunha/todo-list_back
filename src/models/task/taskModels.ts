@@ -81,3 +81,29 @@ export async function deleteTask(taskId: number): Promise<void> {
         }
     }
 }
+
+export async function fetchTaskById(taskId: number): Promise<TaskDB> {
+    let client: PoolClient | undefined;
+    try {
+        client = await pool.connect();
+        const result = await client.query(
+            `SELECT id, title, description, project, deadline, completed from tasks WHERE (id=$1)`,
+            [taskId]
+        );
+
+        const task = validateTaskDB(
+            result.rows[0].id,
+            result.rows[0].title,
+            result.rows[0].description,
+            result.rows[0].project,
+            result.rows[0].deadline,
+            result.rows[0].completed
+        );
+
+        return task;
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
+}
