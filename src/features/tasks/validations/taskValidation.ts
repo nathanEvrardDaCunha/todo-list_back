@@ -3,6 +3,9 @@ import { UnprocessableContentError } from '../../../utils/errors/ClientError.js'
 import {
     isDateValid,
     isDescriptionValid,
+    isInteger,
+    isNumberValid,
+    isPositive,
     isProjectValid,
     isTitleValid,
     isWhitespaceString,
@@ -54,7 +57,27 @@ export function validateDeadline(deadline: unknown): string {
         DB_TASK.MAX_DEADLINE_LENGTH
     );
     if (!isDateValid(result)) {
-        throw new UnprocessableContentError('Password is invalid !');
+        throw new UnprocessableContentError('Deadline is invalid !');
     }
     return result;
+}
+
+export function validateTaskId(taskId: unknown): number {
+    const result = validateStringProperty(
+        taskId,
+        'TaskId',
+        DB_TASK.MIN_TASK_ID_LENGTH,
+        DB_TASK.MAX_TASK_ID_LENGTH
+    );
+    if (!isNumberValid(result)) {
+        throw new UnprocessableContentError('TaskId is an invalid number !');
+    }
+    const newResult = parseInt(result);
+    if (!isPositive(newResult)) {
+        throw new UnprocessableContentError('TaskId is a negative number !');
+    }
+    if (!isInteger(newResult)) {
+        throw new UnprocessableContentError('TaskId is a non-integer number !');
+    }
+    return newResult;
 }

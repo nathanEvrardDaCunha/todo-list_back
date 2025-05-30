@@ -24,7 +24,7 @@ interface CorsOption {
 
 const corsOptions: CorsOption = {
     origin: 'http://localhost:5173',
-    methods: 'GET,POST,UPDATE,DELETE',
+    methods: 'GET,POST,UPDATE,DELETE,PATCH',
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
 };

@@ -1,4 +1,5 @@
 import {
+    completeSingleTask,
     createTask,
     fetchUserTaskInDateRange,
 } from '../../../models/task/taskModels.js';
@@ -13,6 +14,7 @@ import {
     validateDeadline,
     validateDescription,
     validateProject,
+    validateTaskId,
     validateTitle,
 } from '../validations/taskValidation.js';
 
@@ -72,4 +74,10 @@ export async function fetchTodayTasksService(
     );
 
     return tasks;
+}
+
+export async function completeSingleTaskService(taskId: string) {
+    const newTaskId = validateTaskId(taskId);
+
+    await completeSingleTask(newTaskId);
 }

@@ -55,3 +55,17 @@ export async function fetchUserTaskInDateRange(
         }
     }
 }
+
+export async function completeSingleTask(taskId: number): Promise<void> {
+    let client: PoolClient | undefined;
+    try {
+        client = await pool.connect();
+        await client.query('UPDATE tasks SET completed=true WHERE (id=$1)', [
+            taskId,
+        ]);
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
+}
