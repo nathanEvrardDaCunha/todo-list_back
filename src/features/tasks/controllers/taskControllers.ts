@@ -4,8 +4,9 @@ import {
     OkResponse,
 } from '../../../utils/responses/SuccessResponse.js';
 import {
-    completeSingleTaskService,
+    completeTaskService,
     createTaskService,
+    deleteTaskService,
     fetchTodayTasksService,
 } from '../services/taskServices.js';
 
@@ -49,7 +50,7 @@ export async function fetchTodayTaskController(
     }
 }
 
-export async function completeSingleTaskController(
+export async function completeTaskController(
     req: Request,
     res: Response,
     next: NextFunction
@@ -57,10 +58,31 @@ export async function completeSingleTaskController(
     try {
         const taskId = req.params.id;
 
-        await completeSingleTaskService(taskId);
+        await completeTaskService(taskId);
 
         const response = new OkResponse(
             `Complete task n-${taskId} successfully.`,
+            null
+        );
+
+        res.status(response.httpCode).json(response.toJSON());
+    } catch (error) {
+        next(error);
+    }
+}
+
+export async function deleteTaskController(
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> {
+    try {
+        const taskId = req.params.id;
+
+        await deleteTaskService(taskId);
+
+        const response = new OkResponse(
+            `Delete task n-${taskId} successfully.`,
             null
         );
 

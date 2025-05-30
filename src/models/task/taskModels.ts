@@ -56,13 +56,25 @@ export async function fetchUserTaskInDateRange(
     }
 }
 
-export async function completeSingleTask(taskId: number): Promise<void> {
+export async function completeTask(taskId: number): Promise<void> {
     let client: PoolClient | undefined;
     try {
         client = await pool.connect();
         await client.query('UPDATE tasks SET completed=true WHERE (id=$1)', [
             taskId,
         ]);
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
+}
+
+export async function deleteTask(taskId: number): Promise<void> {
+    let client: PoolClient | undefined;
+    try {
+        client = await pool.connect();
+        await client.query('DELETE FROM tasks WHERE (id=$1)', [taskId]);
     } finally {
         if (client) {
             client.release();

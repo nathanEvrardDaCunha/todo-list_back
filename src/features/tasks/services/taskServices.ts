@@ -1,6 +1,7 @@
 import {
-    completeSingleTask,
+    completeTask,
     createTask,
+    deleteTask,
     fetchUserTaskInDateRange,
 } from '../../../models/task/taskModels.js';
 import { TaskDB } from '../../../models/task/taskModelsValidation.js';
@@ -76,8 +77,16 @@ export async function fetchTodayTasksService(
     return tasks;
 }
 
-export async function completeSingleTaskService(taskId: string) {
+// Check if task exist ?
+export async function completeTaskService(taskId: string) {
     const newTaskId = validateTaskId(taskId);
 
-    await completeSingleTask(newTaskId);
+    await completeTask(newTaskId);
+}
+
+// Check if task exist ?
+export async function deleteTaskService(taskId: string) {
+    const newTaskId = validateTaskId(taskId);
+
+    await deleteTask(newTaskId);
 }
