@@ -107,3 +107,24 @@ export async function fetchTaskById(taskId: number): Promise<TaskDB> {
         }
     }
 }
+
+export async function updateTaskById(
+    title: string,
+    description: string,
+    project: string,
+    deadline: Date,
+    id: number
+): Promise<void> {
+    let client: PoolClient | undefined;
+    try {
+        client = await pool.connect();
+        await client.query(
+            `UPDATE tasks SET title=$1, description=$2, project=$3, deadline=$4 WHERE id=$5`,
+            [title, description, project, deadline, id]
+        );
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
+}

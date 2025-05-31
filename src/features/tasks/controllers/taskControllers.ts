@@ -8,6 +8,7 @@ import {
     createTaskService,
     deleteTaskService,
     fetchTodayTasksService,
+    updateTaskService,
 } from '../services/taskServices.js';
 
 export async function createTaskController(
@@ -88,6 +89,33 @@ export async function deleteTaskController(
 
         res.status(response.httpCode).json(response.toJSON());
     } catch (error) {
+        next(error);
+    }
+}
+
+export async function updateTaskController(
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> {
+    try {
+        const { title, description, project, deadline } = req.body;
+        const taskId = req.params.id;
+        const userId = req.id;
+
+        await updateTaskService(
+            title,
+            description,
+            project,
+            deadline,
+            userId,
+            taskId
+        );
+
+        const response = new OkResponse('Update task successfully.', null);
+
+        res.status(response.httpCode).json(response.toJSON());
+    } catch (error: unknown) {
         next(error);
     }
 }

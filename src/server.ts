@@ -22,9 +22,11 @@ interface CorsOption {
     credentials: boolean;
 }
 
+// Make the site HTTPS with 'secure' and 'strict' the day I deploy to production ?
+
 const corsOptions: CorsOption = {
     origin: 'http://localhost:5173',
-    methods: 'GET,POST,UPDATE,DELETE,PATCH',
+    methods: 'GET,POST,PUT,DELETE,PATCH',
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
 };
