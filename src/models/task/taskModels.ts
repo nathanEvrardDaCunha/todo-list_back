@@ -23,17 +23,13 @@ export async function createTask(
     }
 }
 
-export async function fetchUserTaskInDateRange(
-    id: number,
-    minDeadline: Date,
-    maxDeadline: Date
-): Promise<TaskDB[]> {
+export async function fetchTaskByUserId(id: number): Promise<TaskDB[]> {
     let client: PoolClient | undefined;
     try {
         client = await pool.connect();
         const result = await client.query(
-            `SELECT id, title, description, project, deadline, completed from tasks WHERE (user_id=$1) AND (deadline BETWEEN $2 AND $3)`,
-            [id, minDeadline, maxDeadline]
+            `SELECT id, title, description, project, deadline, completed from tasks WHERE (user_id=$1)`,
+            [id]
         );
 
         const tasks = result.rows.map((row) => {

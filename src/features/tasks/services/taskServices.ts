@@ -3,7 +3,7 @@ import {
     createTask,
     deleteTask,
     fetchTaskById,
-    fetchUserTaskInDateRange,
+    fetchTaskByUserId,
     updateTaskById,
 } from '../../../models/task/taskModels.js';
 import { TaskDB } from '../../../models/task/taskModelsValidation.js';
@@ -70,11 +70,7 @@ export async function fetchTodayTasksService(
     const maxDeadline = new Date();
     maxDeadline.setHours(23, 59, 59, 999);
 
-    const tasks = await fetchUserTaskInDateRange(
-        user.id,
-        minDeadline,
-        maxDeadline
-    );
+    const tasks = await fetchTaskByUserId(user.id);
 
     return tasks;
 }
