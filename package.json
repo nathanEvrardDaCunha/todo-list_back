@@ -35,12 +35,14 @@
         "typescript": "^5.8.3"
     },
     "dependencies": {
+        "@types/nodemailer": "^6.4.17",
         "bcrypt": "^5.1.1",
         "cookie-parser": "^1.4.7",
         "cors": "^2.8.5",
         "dotenv": "^16.5.0",
         "express": "^5.1.0",
         "jsonwebtoken": "^9.0.2",
+        "nodemailer": "^7.0.3",
         "pg": "^8.15.6"
     }
 }

@@ -3,6 +3,7 @@ import {
     loginService,
     logoutService,
     registerService,
+    resetPasswordService,
 } from '../services/authServices.js';
 import {
     CreatedResponse,
@@ -71,6 +72,29 @@ export async function logoutController(
             httpOnly: true,
             maxAge: 0,
         });
+
+        res.status(response.httpCode).json(response.toJSON());
+    } catch (error: unknown) {
+        next(error);
+    }
+}
+
+export async function resetPasswordController(
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> {
+    try {
+        const { email } = req.body;
+
+        await resetPasswordService(email);
+
+        // Send new random password so user can connect AND input a new one
+
+        const response = new OkResponse(
+            'Send new password to user email successfully.',
+            null
+        );
 
         res.status(response.httpCode).json(response.toJSON());
     } catch (error: unknown) {

@@ -149,3 +149,21 @@ export async function setRefreshTokenToNull(
         }
     }
 }
+
+export async function setPasswordByUserId(
+    hashedPassword: string,
+    id: number
+): Promise<void> {
+    let client: PoolClient | undefined;
+    try {
+        client = await pool.connect();
+        await client.query(`UPDATE users SET password = $1 WHERE id = $2`, [
+            hashedPassword,
+            id,
+        ]);
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
+}

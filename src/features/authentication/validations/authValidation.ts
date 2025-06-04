@@ -9,7 +9,10 @@ import {
 } from '../../../utils/validation/genericValidation.js';
 import { DB_USER } from '../../../builds/databaseConstants.js';
 
-export async function isPasswordMatch(password: string, hashedPassword: string): Promise<boolean> {
+export async function isPasswordMatch(
+    password: string,
+    hashedPassword: string
+): Promise<boolean> {
     return await bcrypt.compare(password, hashedPassword);
 }
 
@@ -18,7 +21,12 @@ export async function hashPassword(password: string): Promise<string> {
 }
 
 export function validateEmail(email: unknown): string {
-    const result = validateStringProperty(email, 'Email', DB_USER.MIN_EMAIL_LENGTH, DB_USER.MAX_EMAIL_LENGTH);
+    const result = validateStringProperty(
+        email,
+        'Email',
+        DB_USER.MIN_EMAIL_LENGTH,
+        DB_USER.MAX_EMAIL_LENGTH
+    );
     if (!isEmailValid(result)) {
         throw new UnprocessableContentError('Email is invalid !');
     }
@@ -49,4 +57,30 @@ export function validatePassword(password: unknown): string {
         throw new UnprocessableContentError('Password is invalid !');
     }
     return result;
+}
+
+export function generateRandomPassword(length: number = 12): string {
+    const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+    const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const numbers = '0123456789';
+    const special = '!@#$%^&*()_+-=[]{};\'"\\|,.<>/?';
+
+    let password = [
+        lowercase[Math.floor(Math.random() * lowercase.length)],
+        uppercase[Math.floor(Math.random() * uppercase.length)],
+        numbers[Math.floor(Math.random() * numbers.length)],
+        special[Math.floor(Math.random() * special.length)],
+    ];
+
+    const allChars = lowercase + uppercase + numbers + special;
+    for (let i = password.length; i < length; i++) {
+        password.push(allChars[Math.floor(Math.random() * allChars.length)]);
+    }
+
+    for (let i = password.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [password[i], password[j]] = [password[j], password[i]];
+    }
+
+    return password.join('');
 }
