@@ -1,12 +1,9 @@
-import { JWT_CONFIG } from '../../../constants/jwtConstants.js';
 import {
-    createUser,
-    fetchUserByEmail,
+    deleteUser,
     fetchUserById,
     isEmailUnavailable,
     isUsernameUnavailable,
     setPasswordByUserId,
-    setRefreshTokenById,
     updateUserByUserId,
 } from '../../../models/user/userModels.js';
 import { UserDB } from '../../../models/user/userModelsValidation.js';
@@ -69,6 +66,22 @@ export async function updateUserService(
 
     // The naming structure for model function lack consistency (e.g: sometime with and without "BySomething"...)
     await updateUserByUserId(newUsername, newEmail, user.id);
+}
+
+export async function deleteUserService(
+    userId: number | undefined
+): Promise<void> {
+    const newUserId = userId;
+    if (isUndefined(newUserId)) {
+        throw new UnauthorizedError('The user id is not valid !');
+    }
+
+    const user = await fetchUserById(newUserId);
+    if (!user) {
+        throw new NotFoundError('User has not been found in database !');
+    }
+
+    await deleteUser(user.id);
 }
 
 export async function changePasswordService(

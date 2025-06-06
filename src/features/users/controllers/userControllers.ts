@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { OkResponse } from '../../../utils/responses/SuccessResponse.js';
 import {
     changePasswordService,
+    deleteUserService,
     fetchUserService,
     updateUserService,
 } from '../services/userServices.js';
@@ -36,6 +37,29 @@ export async function updateUserController(
         await updateUserService(userId, username, email);
 
         const response = new OkResponse('User updated successfully.', null);
+
+        res.status(response.httpCode).json(response.toJSON());
+    } catch (error: unknown) {
+        next(error);
+    }
+}
+
+export async function deleteUserController(
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> {
+    try {
+        const userId = req.id;
+
+        await deleteUserService(userId);
+
+        const response = new OkResponse('User deleted successfully.', null);
+
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            maxAge: 0,
+        });
 
         res.status(response.httpCode).json(response.toJSON());
     } catch (error: unknown) {

@@ -168,6 +168,18 @@ export async function setPasswordByUserId(
     }
 }
 
+export async function deleteUser(id: number): Promise<void> {
+    let client: PoolClient | undefined;
+    try {
+        client = await pool.connect();
+        await client.query(`DELETE FROM users WHERE id = $1`, [id]);
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
+}
+
 export async function updateUserByUserId(
     username: string,
     email: string,
