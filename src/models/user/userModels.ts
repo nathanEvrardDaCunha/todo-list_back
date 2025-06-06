@@ -167,3 +167,22 @@ export async function setPasswordByUserId(
         }
     }
 }
+
+export async function updateUserByUserId(
+    username: string,
+    email: string,
+    id: number
+): Promise<void> {
+    let client: PoolClient | undefined;
+    try {
+        client = await pool.connect();
+        await client.query(
+            `UPDATE users SET username = $1, email = $2  WHERE id = $3`,
+            [username, email, id]
+        );
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
+}
