@@ -3,11 +3,11 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export const DB_CONFIG = {
-    NAME: process.env.DATABASE_NAME || 'todolist',
-    HOST: process.env.DATABASE_HOST || 'db',
-    PORT: parseInt(process.env.DATABASE_PORT || '5432'),
-    USER: process.env.DATABASE_USER || 'postgres',
-    PASSWORD: process.env.DATABASE_PASSWORD || 'postgres',
+    NAME: process.env.DATABASE_NAME!,
+    HOST: process.env.DATABASE_HOST!,
+    PORT: parseInt(process.env.DATABASE_PORT!),
+    USER: process.env.DATABASE_USER!,
+    PASSWORD: process.env.DATABASE_PASSWORD!,
 } as const;
 
 export const DB_USER = {

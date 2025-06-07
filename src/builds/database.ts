@@ -14,7 +14,9 @@ export const pool: pkg.Pool = new Pool({
 });
 
 pool.on('connect', () => {
-    console.log(`Connection pool established with database ${DB_CONFIG.NAME} on port ${DB_CONFIG.PORT}`);
+    console.log(
+        `Connection pool established with database ${DB_CONFIG.NAME} on port ${DB_CONFIG.PORT}`
+    );
 });
 
 pool.on('error', (err) => {
