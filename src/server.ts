@@ -11,6 +11,7 @@ import tokenRouter from './features/tokens/routes/tokenRoutes.js';
 import taskRouter from './features/tasks/routes/taskRoutes.js';
 import { tokenHandler } from './middlewares/tokenHandler.js';
 import userRouter from './features/users/routes/userRoutes.js';
+import contactRouter from './features/contact/routes/contactRoutes.js';
 
 dotenv.config();
 
@@ -45,6 +46,7 @@ app.use('/api/token', tokenRouter);
 app.use(tokenHandler);
 app.use('/api/task', taskRouter);
 app.use('/api/user', userRouter);
+app.use(contactRouter);
 
 app.use(errorHandler);
 

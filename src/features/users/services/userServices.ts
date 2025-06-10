@@ -54,6 +54,10 @@ export async function updateUserService(
     const newUsername = validateUsername(username);
     const newEmail = validateEmail(email);
 
+    // Verify if the username is the same => if yes, update with the same username and don't throw error / else throw it
+    // Verify if the email is the same => if yes, update with the same username and don't throw error / else throw it
+    // BUG: The user is forced to update every field with new value instead of choosing which one
+
     const dbUsername = await isUsernameUnavailable(newUsername);
     if (dbUsername) {
         throw new ConflictError('Username is not available !');
