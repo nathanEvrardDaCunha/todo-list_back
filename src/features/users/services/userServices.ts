@@ -51,25 +51,25 @@ export async function updateUserService(
         throw new NotFoundError('User has not been found in database !');
     }
 
-    const newUsername = validateUsername(username);
-    const newEmail = validateEmail(email);
+    const finalUsername =
+        username === undefined ? user.username : validateUsername(username);
+    const finalEmail = email === undefined ? user.email : validateEmail(email);
 
-    // Verify if the username is the same => if yes, update with the same username and don't throw error / else throw it
-    // Verify if the email is the same => if yes, update with the same username and don't throw error / else throw it
-    // BUG: The user is forced to update every field with new value instead of choosing which one
-
-    const dbUsername = await isUsernameUnavailable(newUsername);
-    if (dbUsername) {
-        throw new ConflictError('Username is not available !');
+    if (finalUsername !== user.username) {
+        const dbUsername = await isUsernameUnavailable(finalUsername);
+        if (dbUsername) {
+            throw new ConflictError('Username is not available !');
+        }
     }
 
-    const dbEmail = await isEmailUnavailable(newEmail);
-    if (dbEmail) {
-        throw new ConflictError('Email is not available !');
+    if (finalEmail !== user.email) {
+        const dbEmail = await isEmailUnavailable(finalEmail);
+        if (dbEmail) {
+            throw new ConflictError('Email is not available !');
+        }
     }
 
-    // The naming structure for model function lack consistency (e.g: sometime with and without "BySomething"...)
-    await updateUserByUserId(newUsername, newEmail, user.id);
+    await updateUserByUserId(finalUsername, finalEmail, user.id);
 }
 
 export async function deleteUserService(

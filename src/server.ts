@@ -40,13 +40,12 @@ app.use(express.json());
 // IF refresh token is expired (and not access token) => indicate to user to /login
 
 app.use('/api/auth', authRouter);
-
+app.use(contactRouter);
 app.use('/api/token', tokenRouter);
 
 app.use(tokenHandler);
 app.use('/api/task', taskRouter);
 app.use('/api/user', userRouter);
-app.use(contactRouter);
 
 app.use(errorHandler);
 
