@@ -37,8 +37,6 @@ app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
 
-// IF refresh token is expired (and not access token) => indicate to user to /login
-
 app.use('/api/auth', authRouter);
 app.use(contactRouter);
 app.use('/api/token', tokenRouter);

@@ -116,9 +116,6 @@ export async function resetPasswordService(email: any): Promise<void> {
 
     const temporaryPassword = generateRandomPassword(16);
 
-    //
-    // REMINDER: You should never change you account password after defining a App Password
-    //
     const transporter = nodemailer.createTransport({
         host: MAILER_CONFIG.EMAIL_HOST,
         port: parseInt(MAILER_CONFIG.EMAIL_PORT || '587'),
@@ -129,9 +126,6 @@ export async function resetPasswordService(email: any): Promise<void> {
         },
     });
 
-    //
-    // In frontend, create contact page with the same email for faking support
-    //
     const mailOptions = {
         from: MAILER_CONFIG.EMAIL_FROM,
         to: newEmail,

@@ -89,8 +89,6 @@ export async function resetPasswordController(
 
         await resetPasswordService(email);
 
-        // Send new random password so user can connect AND input a new one
-
         const response = new OkResponse(
             'Send new password to user email successfully.',
             null

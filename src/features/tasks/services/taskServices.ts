@@ -76,8 +76,6 @@ export async function fetchTodayTasksService(
 }
 
 export async function completeTaskService(taskId: string) {
-    // Maybe verify the task does belong to the right user before updating it ?
-
     const newTaskId = validateTaskId(taskId);
 
     const task = await fetchTaskById(newTaskId);
@@ -89,8 +87,6 @@ export async function completeTaskService(taskId: string) {
 }
 
 export async function deleteTaskService(taskId: string) {
-    // Maybe verify the task does belong to the right user before updating it ?
-
     const newTaskId = validateTaskId(taskId);
 
     const task = await fetchTaskById(newTaskId);
@@ -120,18 +116,6 @@ export async function updateTaskService(
     if (!task) {
         throw new NotFoundError('Task has not been found in database !');
     }
-
-    // Maybe verify the task does belong to the right user before updating it ?
-
-    // const newUserId = userId;
-    // if (isUndefined(newUserId)) {
-    //     throw new UnauthorizedError('The user id is not valid !');
-    // }
-
-    // const user = await fetchUserById(newUserId);
-    // if (!user) {
-    //     throw new NotFoundError('User has not been found in database !');
-    // }
 
     const convertedDeadline = new Date(newDeadline);
     await updateTaskById(
