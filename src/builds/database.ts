@@ -5,24 +5,28 @@ import { DB_CONFIG, DB_TASK, DB_USER } from './databaseConstants.js';
 
 const { Pool } = pkg;
 
-export const pool: pkg.Pool = new Pool({
-    database: DB_CONFIG.NAME,
-    host: DB_CONFIG.HOST,
-    port: DB_CONFIG.PORT,
-    user: DB_CONFIG.USER,
-    password: DB_CONFIG.PASSWORD,
-});
+const connectionOptions = {
+    connectionString: process.env.DATABASE_URL,
+    ssl:
+        process.env.NODE_ENV === 'production'
+            ? { rejectUnauthorized: false }
+            : false,
+};
 
-console.log(DB_CONFIG.NAME);
-console.log(DB_CONFIG.HOST);
-console.log(DB_CONFIG.PORT);
-console.log(DB_CONFIG.USER);
-console.log(DB_CONFIG.PASSWORD);
+if (!connectionOptions.connectionString) {
+    Object.assign(connectionOptions, {
+        database: DB_CONFIG.NAME,
+        host: DB_CONFIG.HOST,
+        port: DB_CONFIG.PORT,
+        user: DB_CONFIG.USER,
+        password: DB_CONFIG.PASSWORD,
+    });
+}
 
-pool.on('connect', () => {
-    console.log(
-        `Connection pool established with database ${DB_CONFIG.NAME} on port ${DB_CONFIG.PORT}`
-    );
+export const pool: pkg.Pool = new Pool(connectionOptions);
+
+pool.on('connect', (client) => {
+    console.log(`Connection pool established with database.`);
 });
 
 pool.on('error', (err) => {
@@ -36,6 +40,11 @@ export async function connectToDB(): Promise<void> {
     let client: pkg.PoolClient | undefined;
     try {
         client = await pool.connect();
+        console.log('Database connection successful.');
+    } catch (error) {
+        console.error('Failed to connect to the database:', error);
+        // Re-throw the error to be caught by the server's startup logic
+        throw error;
     } finally {
         if (client) {
             client.release();
@@ -58,6 +67,7 @@ export async function initializeDB(): Promise<void> {
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
+        console.log("Table 'users' is ready.");
 
         await client.query(`CREATE TABLE IF NOT EXISTS tasks (
                 id SERIAL PRIMARY KEY,
@@ -72,6 +82,7 @@ export async function initializeDB(): Promise<void> {
                 FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
             )
         `);
+        console.log("Table 'tasks' is ready.");
     } finally {
         if (client) {
             client.release();
