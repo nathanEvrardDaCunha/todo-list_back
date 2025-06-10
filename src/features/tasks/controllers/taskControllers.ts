@@ -22,7 +22,10 @@ export async function createTaskController(
 
         await createTaskService(title, description, project, deadline, userId);
 
-        const response = new CreatedResponse('Create task successfully.', null);
+        const response = new CreatedResponse(
+            'Task has been created successfully.',
+            null
+        );
 
         res.status(response.httpCode).json(response.toJSON());
     } catch (error: unknown) {
@@ -41,7 +44,7 @@ export async function fetchTodayTaskController(
         const result = await fetchTodayTasksService(userId);
 
         const response = new OkResponse(
-            'Fetch user today task successfully.',
+            'User tasks have been fetched successfully.',
             result
         );
 
@@ -62,7 +65,7 @@ export async function completeTaskController(
         await completeTaskService(taskId);
 
         const response = new OkResponse(
-            `Complete task n-${taskId} successfully.`,
+            `Task n-${taskId} ahs been completed successfully.`,
             null
         );
 
@@ -83,7 +86,7 @@ export async function deleteTaskController(
         await deleteTaskService(taskId);
 
         const response = new OkResponse(
-            `Delete task n-${taskId} successfully.`,
+            `Task n-${taskId} has been deleted successfully.`,
             null
         );
 
@@ -112,7 +115,10 @@ export async function updateTaskController(
             taskId
         );
 
-        const response = new OkResponse('Update task successfully.', null);
+        const response = new OkResponse(
+            `Task n-${taskId} has been updated successfully.`,
+            null
+        );
 
         res.status(response.httpCode).json(response.toJSON());
     } catch (error: unknown) {

@@ -11,7 +11,10 @@ export async function sendContactMessageController(
         const { name, email, message } = req.body;
         await sendContactMessageService(name, email, message);
 
-        const response = new OkResponse('Message sent successfully', null);
+        const response = new OkResponse(
+            'Message has been sent successfully.',
+            null
+        );
         res.status(response.httpCode).json(response.toJSON());
     } catch (error) {
         next(error);

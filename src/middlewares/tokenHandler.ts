@@ -25,9 +25,7 @@ export function tokenHandler(
 ): void {
     const authorizationHeader = req.headers['authorization'];
     if (!authorizationHeader) {
-        throw new UnauthorizedError(
-            'Cannot proceed because authentication header is undefined !'
-        );
+        throw new UnauthorizedError('Authentication header is undefined !');
     }
 
     const accessToken = authorizationHeader.split(' ')[1];
@@ -41,26 +39,24 @@ export function tokenHandler(
             decoded: string | JwtPayload | undefined
         ) => {
             if (err) {
-                throw new UnauthorizedError(
-                    'Cannot proceed because access token is invalid !'
-                );
+                throw new UnauthorizedError('Access token is invalid !');
             }
 
             if (isUndefined(decoded)) {
                 throw new FailedPreconditionError(
-                    'The access token result should not be a string !'
+                    'Access token result should not be a string !'
                 );
             }
 
             if (isString(decoded)) {
                 throw new FailedPreconditionError(
-                    'The access token result should not be a string !'
+                    'Access token result should not be a string !'
                 );
             }
 
             if (!isNumber(decoded.id)) {
                 throw new FailedPreconditionError(
-                    'The decoded id result should a valid number !'
+                    'Decoded id result should a valid number !'
                 );
             }
 

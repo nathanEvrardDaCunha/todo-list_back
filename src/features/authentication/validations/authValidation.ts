@@ -28,7 +28,16 @@ export function validateEmail(email: unknown): string {
         DB_USER.MAX_EMAIL_LENGTH
     );
     if (!isEmailValid(result)) {
-        throw new UnprocessableContentError('Email is invalid !');
+        throw new UnprocessableContentError(
+            [
+                'Email is invalid!',
+                '- Must contain @ symbol',
+                '- Format: username@domain.extension',
+                '- Username: letters, numbers, dots, underscores, hyphens',
+                '- Domain: letters, numbers, dots, hyphens',
+                '- Extension: at least 2 letters',
+            ].join('\n')
+        );
     }
     return result;
 }
@@ -41,7 +50,14 @@ export function validateUsername(username: unknown): string {
         DB_USER.MAX_USERNAME_LENGTH
     );
     if (!isUsernameValid(result)) {
-        throw new UnprocessableContentError('Username is invalid !');
+        throw new UnprocessableContentError(
+            [
+                'Username is invalid!',
+                '- Letters (a-z, A-Z)',
+                '- Numbers (0-9)',
+                '- Hyphens (-) as separators',
+            ].join('\n')
+        );
     }
     return result;
 }
@@ -54,7 +70,16 @@ export function validatePassword(password: unknown): string {
         DB_USER.MAX_PASSWORD_LENGTH
     );
     if (!isPasswordValid(result)) {
-        throw new UnprocessableContentError('Password is invalid !');
+        throw new UnprocessableContentError(
+            [
+                'Password is invalid!',
+                '- At least 6 characters long',
+                '- At least one lowercase letter (a-z)',
+                '- At least one uppercase letter (A-Z)',
+                '- At least one number (0-9)',
+                '- At least one special character (!@#$%^&*()_+-=[]{};\':"\\|,.<>/?)',
+            ].join('\n')
+        );
     }
     return result;
 }

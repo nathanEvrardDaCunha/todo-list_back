@@ -35,7 +35,7 @@ export async function createTaskService(
 
     const newUserId = userId;
     if (isUndefined(newUserId)) {
-        throw new UnauthorizedError('The user id is not valid !');
+        throw new UnauthorizedError('User id is not valid !');
     }
 
     const user = await fetchUserById(newUserId);
@@ -58,7 +58,7 @@ export async function fetchTodayTasksService(
 ): Promise<TaskDB[]> {
     const newUserId = userId;
     if (isUndefined(newUserId)) {
-        throw new UnauthorizedError('The user id is not valid !');
+        throw new UnauthorizedError('User id is not valid !');
     }
 
     const user = await fetchUserById(newUserId);
@@ -66,7 +66,6 @@ export async function fetchTodayTasksService(
         throw new NotFoundError('User has not been found in database !');
     }
 
-    const minDeadline = new Date('1990-01-01');
     const maxDeadline = new Date();
     maxDeadline.setHours(23, 59, 59, 999);
 

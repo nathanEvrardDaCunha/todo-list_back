@@ -24,7 +24,7 @@ export async function refreshTokenService(refreshToken: any): Promise<string> {
         decoded = jwt.verify(newRefreshToken, JWT_CONFIG.REFRESH_TOKEN);
     } catch (error) {
         throw new UnauthorizedError(
-            'JWT refresh token expired => USer need to logout and login again to generate a new one !'
+            'User token has expired and need to sign-in again !'
         );
     }
 

@@ -20,7 +20,10 @@ export async function registerController(
 
         await registerService(username, email, password);
 
-        const response = new CreatedResponse('Create user successfully.', null);
+        const response = new CreatedResponse(
+            'User has been created successfully.',
+            null
+        );
 
         res.status(response.httpCode).json(response.toJSON());
     } catch (error: unknown) {
@@ -38,9 +41,12 @@ export async function loginController(
 
         const result = await loginService(email, password);
 
-        const response = new OkResponse('Authenticate user successfully.', {
-            accessToken: result.accessToken,
-        });
+        const response = new OkResponse(
+            'User has been authenticated successfully.',
+            {
+                accessToken: result.accessToken,
+            }
+        );
 
         res.cookie('refreshToken', result.refreshToken, {
             httpOnly: true,
@@ -64,7 +70,7 @@ export async function logoutController(
         await logoutService(refreshToken);
 
         const response = new OkResponse(
-            'Authenticate user successfully.',
+            'User has been disconnected successfully.',
             null
         );
 
@@ -90,7 +96,7 @@ export async function resetPasswordController(
         await resetPasswordService(email);
 
         const response = new OkResponse(
-            'Send new password to user email successfully.',
+            'User email received new password successfully.',
             null
         );
 

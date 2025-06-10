@@ -21,7 +21,14 @@ export function validateTitle(title: unknown): string {
         DB_TASK.MAX_TITLE_LENGTH
     );
     if (!isTitleValid(result)) {
-        throw new UnprocessableContentError('Title is invalid !');
+        throw new UnprocessableContentError(
+            [
+                'Title is invalid!',
+                '- Letters (a-z, A-Z)',
+                '- Numbers (0-9)',
+                '- Spaces and special characters: !@#$%&*_-',
+            ].join('\n')
+        );
     }
     return result;
 }
@@ -33,7 +40,14 @@ export function validateDescription(description: unknown): string {
     );
     if (!isWhitespaceString(result)) {
         if (!isDescriptionValid(result)) {
-            throw new UnprocessableContentError('Description is invalid !');
+            throw new UnprocessableContentError(
+                [
+                    'Description is invalid!',
+                    '- Letters (a-z, A-Z)',
+                    '- Numbers (0-9)',
+                    '- Spaces, newlines, and special characters: !@#$%&*_\\-',
+                ].join('\n')
+            );
         }
     }
     return result;
@@ -43,7 +57,14 @@ export function validateProject(project: unknown): string {
     const result = validatePossiblyEmptyStringProperty(project, 'Project');
     if (!isWhitespaceString(result)) {
         if (!isProjectValid(result)) {
-            throw new UnprocessableContentError('Project is invalid !');
+            throw new UnprocessableContentError(
+                [
+                    'Project name is invalid!',
+                    '- Letters only (a-z, A-Z)',
+                    '- Spaces allowed',
+                    '- No numbers or special characters',
+                ].join('\n')
+            );
         }
     }
     return result;

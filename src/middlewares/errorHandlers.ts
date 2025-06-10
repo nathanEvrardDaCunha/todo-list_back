@@ -8,7 +8,7 @@ export default function errorHandler(
     next: NextFunction
 ) {
     if (err instanceof ClientError) {
-        console.log('ERROR HANDLED');
+        console.log('HANDLED Error:');
         console.error(err);
 
         res.status(err.httpCode).json({
@@ -17,7 +17,7 @@ export default function errorHandler(
             stack: err.stack,
         });
     } else {
-        console.log('ERROR NON-HANDLED');
+        console.log('NON-HANDLED Error:');
         console.error(err);
 
         res.status(500).json({

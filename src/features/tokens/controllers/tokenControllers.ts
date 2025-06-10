@@ -13,7 +13,7 @@ export async function refreshTokenController(
         const result = await refreshTokenService(refreshToken);
 
         const response = new OkResponse(
-            'Access token updated successfully.',
+            'Access token ahs been updated successfully.',
             result
         );
 

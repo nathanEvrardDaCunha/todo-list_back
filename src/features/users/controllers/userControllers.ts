@@ -17,7 +17,10 @@ export async function fetchUserController(
 
         const result = await fetchUserService(userId);
 
-        const response = new OkResponse('User fetched successfully.', result);
+        const response = new OkResponse(
+            'User has been fetched successfully.',
+            result
+        );
 
         res.status(response.httpCode).json(response.toJSON());
     } catch (error: unknown) {
@@ -36,7 +39,10 @@ export async function updateUserController(
 
         await updateUserService(userId, username, email);
 
-        const response = new OkResponse('User updated successfully.', null);
+        const response = new OkResponse(
+            'User has been updated successfully.',
+            null
+        );
 
         res.status(response.httpCode).json(response.toJSON());
     } catch (error: unknown) {
@@ -54,7 +60,10 @@ export async function deleteUserController(
 
         await deleteUserService(userId);
 
-        const response = new OkResponse('User deleted successfully.', null);
+        const response = new OkResponse(
+            'User has been deleted successfully.',
+            null
+        );
 
         res.clearCookie('refreshToken', {
             httpOnly: true,
@@ -78,7 +87,10 @@ export async function changePasswordController(
 
         await changePasswordService(userId, password);
 
-        const response = new OkResponse('Password changed successfully.', null);
+        const response = new OkResponse(
+            'User password has been changed successfully.',
+            null
+        );
 
         res.status(response.httpCode).json(response.toJSON());
     } catch (error: unknown) {
