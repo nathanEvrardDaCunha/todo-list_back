@@ -13,6 +13,12 @@ export const pool: pkg.Pool = new Pool({
     password: DB_CONFIG.PASSWORD,
 });
 
+console.log(DB_CONFIG.NAME);
+console.log(DB_CONFIG.HOST);
+console.log(DB_CONFIG.PORT);
+console.log(DB_CONFIG.USER);
+console.log(DB_CONFIG.PASSWORD);
+
 pool.on('connect', () => {
     console.log(
         `Connection pool established with database ${DB_CONFIG.NAME} on port ${DB_CONFIG.PORT}`

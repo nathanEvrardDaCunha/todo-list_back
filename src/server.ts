@@ -1,10 +1,10 @@
+// src/server.ts - UPDATED CORS SECTION
 import express, { Application } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import { connectToDB, initializeDB } from './builds/database.js';
 import { APP_CONFIG } from './serverConstants.js';
-import { DB_CONFIG } from './builds/databaseConstants.js';
 import errorHandler from './middlewares/errorHandlers.js';
 import authRouter from './features/authentication/routes/authRoutes.js';
 import tokenRouter from './features/tokens/routes/tokenRoutes.js';
@@ -29,7 +29,7 @@ interface CorsOption {
 const corsOptions: CorsOption = {
     origin:
         process.env.NODE_ENV === 'production'
-            ? ['https://your-domain.com'] // Replace with your actual production domain
+            ? [process.env.APP_URL || 'https://localhost:3000'] // Use environment variable
             : 'http://localhost:5173',
     methods: 'GET,POST,PUT,DELETE,PATCH',
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -39,6 +39,15 @@ const corsOptions: CorsOption = {
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
+
+// Add a health check endpoint
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV,
+    });
+});
 
 // Security headers
 app.use((req, res, next) => {
@@ -72,17 +81,21 @@ app.use(errorHandler);
 
 async function startServer(): Promise<void> {
     try {
-        await connectToDB();
+        console.log('Starting server...');
+        console.log('Environment:', process.env.NODE_ENV);
+        console.log('Port:', APP_CONFIG.PORT);
 
+        await connectToDB();
         await initializeDB();
 
-        app.listen(APP_CONFIG.PORT, () => {
-            console.log(`Server run on ${APP_CONFIG.ENV} mode`);
-            console.log(`API run on: ${APP_CONFIG.URL}${APP_CONFIG.PORT}`);
-            console.log(`Pool connect to: ${DB_CONFIG.NAME}:${DB_CONFIG.PORT}`);
+        const port = process.env.PORT || APP_CONFIG.PORT;
+        app.listen(port, () => {
+            console.log(`Server running in ${process.env.NODE_ENV} mode`);
+            console.log(`API running on port: ${port}`);
+            console.log('Database connection successful');
         });
     } catch (error) {
-        console.error(error);
+        console.error('Failed to start server:', error);
         process.exit(1);
     }
 }
