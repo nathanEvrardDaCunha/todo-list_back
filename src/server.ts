@@ -13,21 +13,24 @@ import { tokenHandler } from './middlewares/tokenHandler.js';
 import userRouter from './features/users/routes/userRoutes.js';
 import contactRouter from './features/contact/routes/contactRoutes.js';
 
-dotenv.config();
+dotenv.config({
+    path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env',
+});
 
 const app: Application = express();
 
 interface CorsOption {
-    origin: string;
+    origin: string | string[];
     methods: string;
     allowedHeaders: string[];
     credentials: boolean;
 }
 
-// Make the site HTTPS with 'secure' and 'strict' the day I deploy to production ?
-
 const corsOptions: CorsOption = {
-    origin: 'http://localhost:5173',
+    origin:
+        process.env.NODE_ENV === 'production'
+            ? ['https://your-domain.com'] // Replace with your actual production domain
+            : 'http://localhost:5173',
     methods: 'GET,POST,PUT,DELETE,PATCH',
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -36,6 +39,26 @@ const corsOptions: CorsOption = {
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
+
+// Security headers
+app.use((req, res, next) => {
+    // Force HTTPS in production
+    if (process.env.NODE_ENV === 'production') {
+        res.setHeader(
+            'Strict-Transport-Security',
+            'max-age=31536000; includeSubDomains'
+        );
+    }
+    // Prevent clickjacking
+    res.setHeader('X-Frame-Options', 'DENY');
+    // XSS protection
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    // Disable MIME type sniffing
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    // Restrict referrer information
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    next();
+});
 
 app.use('/api/auth', authRouter);
 app.use(contactRouter);
