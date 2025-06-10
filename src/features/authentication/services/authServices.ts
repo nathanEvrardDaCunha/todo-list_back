@@ -19,8 +19,8 @@ import {
 } from '../../../models/user/userModels.js';
 import {
     ConflictError,
+    ForbiddenError,
     NotFoundError,
-    UnauthorizedError,
 } from '../../../utils/errors/ClientError.js';
 import { validateRefreshToken } from '../../../utils/validation/genericValidation.js';
 import nodemailer from 'nodemailer';
@@ -75,13 +75,13 @@ export async function loginService(
 
     const user = await fetchUserByEmail(newEmail);
     if (!user) {
-        throw new UnauthorizedError('Invalid Credentials !');
+        throw new ForbiddenError('Invalid Credentials !');
     }
 
     const passwordMatch = await isPasswordMatch(newPassword, user.password);
 
     if (!passwordMatch) {
-        throw new UnauthorizedError('Invalid Credentials !');
+        throw new ForbiddenError('Invalid Credentials !');
     }
 
     const accessToken = jwt.sign({ id: user.id }, JWT_CONFIG.ACCESS_TOKEN, {
